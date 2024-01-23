@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SkillSyncer</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="SkillSyncer">
+        <meta name="author" content="SkillSyncer">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <meta name = "viewport" content ="initial-scale=1, width=device-width">
+    </head>
+    <body>
+        <div class="heading">
+            <h1>
+                <span>Meet </span>
+                <span id="name">SkillSyncer,</span>
+                <span>your AI consultant.</span>
+            </h1>  
+            <p>Consult with custom AI Agents to deploy better and more efficient project matching. Simply upload resumes and project details, and get recommendations.</p>
+            <div>
+
+                <form action="{{ url_for('explore_form') }}" method="get">
+                    <button type="submit" class="primary">Get Started</button>
+                </form>
+                <form action="{{ url_for('explore_encryption') }}" method="get">
+                    <button type="submit">Explore Encryption</button>
+                </form>
+                <!-- <button></button> -->
+
+            </div>
+            
+            
+        </div>
+        
+        
+        <div id='shape'>
+            <script type="text/javascript">
+                console.clear();
+                const shape = document.getElementById('shape')
+
+                const radii = {
+                top: 50,
+                right: 50,
+                bottom: 50,
+                left: 50
+                }
+
+                const dx = {
+                top: [],
+                right: [],
+                bottom: [],
+                left: []
+                }
+
+                const formatBorderRadius = (top, right, bottom, left) => {
+                return `${top}% ${100-top}% ${100-bottom}% ${bottom}% / ${left}% ${right}% ${100-right}% ${100-left}%`
+                }
+
+                const updateBorderRadius = (top, right, bottom, left) => {
+                shape.style.borderRadius = formatBorderRadius(top, right, bottom, left);
+                }
+
+                const random = (x) => 2 * x * (0.5 - Math.random())
+
+                const smoothChange = (x, dx) => {
+                if (dx.length > 60) dx.shift();
+                
+                dx.push(random(5) + (50 - x)/20)
+                
+                x = x + dx.reduce((a,b) => a+b)/dx.length
+                
+                return [x, dx]
+                }
+
+                setInterval(() => {
+                [radii.top, dx.top] = smoothChange(radii.top, dx.top);
+                [radii.right, dx.right] = smoothChange(radii.right, dx.right);
+                [radii.bottom, dx.bottom] = smoothChange(radii.bottom, dx.bottom);
+                [radii.left, dx.left] = smoothChange(radii.left, dx.left);
+                
+                updateBorderRadius(
+                    radii.top,
+                    radii.right,
+                    radii.bottom,
+                    radii.left
+                )
+                }, 
+                15
+                )
+            </script>
+        </div>
+        
+
+        
+        <!-- <script src="script.js"></script> -->
+    </body>
+</html>

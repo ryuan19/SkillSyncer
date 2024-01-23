@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SkillSyncer Form</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="SkillSyncer Form">
+        <meta name="author" content="SkillSyncer Form">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+        <link href="https://fonts.googleapis.com/css?family=Noto Sans" rel="stylesheet">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <style>
+            body {
+                background-color: #f4f4f4; /* Cream-colored background */
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            .form-page-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .form-container {
+                background-color: #fff; /* White box for the form */
+                border-radius: 15px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 100px;
+            }
+
+            .input_form {
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Add other styles as needed */
+
+        </style>
+    </head>
+    <body>
+        <div class="form-page-container">
+            <div class="form-container">
+                <h1 id="name">Upload Details</h1>
+                <form class="input_form" action="/process_form" method="post" enctype="multipart/form-data">
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                    <input type="text" id="resume" name="resume" placeholder="Resume" required>
+                    <input type="text" id="project" name="project" placeholder="Project" required>
+                    <button type="submit" class="primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
