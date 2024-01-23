@@ -30,6 +30,7 @@ executing==1.2.0
 fastjsonschema==2.16.3
 filelock==3.6.0
 flask==3.0.0
+flask-sqlalchemy==3.1.1
 fonttools==4.33.3
 frozenlist==1.4.0
 fsspec==2023.12.2
