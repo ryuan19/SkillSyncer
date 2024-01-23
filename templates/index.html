@@ -10,88 +10,99 @@
         <meta name = "viewport" content ="initial-scale=1, width=device-width">
     </head>
     <body>
-        <div class="heading">
-            <h1>
-                <span>Meet </span>
-                <span id="name">SkillSyncer,</span>
-                <span>your AI consultant.</span>
-            </h1>  
-            <p>Consult with custom AI Agents to deploy better and more efficient project matching. Simply upload resumes and project details, and get recommendations.</p>
-            <div>
 
-                <form action="{{ url_for('explore_form') }}" method="get">
-                    <button type="submit" class="primary">Get Started</button>
-                </form>
-                <form action="{{ url_for('explore_encryption') }}" method="get">
-                    <button type="submit">Explore Encryption</button>
-                </form>
-                <!-- <button></button> -->
+        <div class="centered">
 
+            <div class="section1">
+                <div class="heading">
+                    <h1>
+                        <span>Revolutionize Team</span>
+                        <span>Formation with</span>
+                        <span id="name">SkillSyncer AI.</span>
+                    </h1>  
+                    <p>
+                        Unlock the future of workforce optimization with SkillSyncer AI. 
+                        Our advanced AI-driven platform streamlines project team formation by intelligently 
+                        matching employee skills and project requirements. 
+                        Experience seamless integration of talent and tasks, ensuring your teams are 
+                        not just formed but formulated for success.
+                    </p>
+                    <div>
+                        <form action="{{ url_for('explore_form') }}" method="get">
+                            <button type="submit" class="primary">Get Started</button>
+                        </form>
+                        <form action="{{ url_for('index') }}" method="get">
+                            <button type="submit">Get in Touch</button>
+                        </form>
+                    </div>  
+                </div>
+                <div id='shape'>
+                    <script type="text/javascript" src="{{ url_for('static', filename='blob.js') }}"></script>
+                </div>
             </div>
+
+            <div class="section2">
+                <p style="font-size: 1.4em; color: #f0f0f0; margin-bottom: 0;">
+                    Privacy first.
+                </p>
+                <h2 class="subhead">Encrypted LLM Fine Tuning</h1>
+                <div style="max-width: 750px;">
+                <p style="font-size: 1.2em; color: #afafaf;">
+                    Leveraging state-of-the-art AES 256 Encryption, our platform guarantees the confidentiality of your corporate and employee data. Experience peace of mind knowing that every interaction and piece of information is shielded with the highest level of digital security.
+                </p>
+                <div id="encrypt-container">
+                    <!-- Left Lines -->
+                    <div class="dataLine" id="leftLine1"></div>
+                    <div class="flowingData" data-line="leftLine1"></div>
+                    <div class="flowingData" data-line="leftLine1"></div>
+                    <div class="flowingData" data-line="leftLine1"></div>
+                    <div class="flowingData" data-line="leftLine1"></div>
+
+                    <div class="dataLine" id="leftLine2"></div>
+                    <div class="flowingData" data-line="leftLine2"></div>
+                    <div class="flowingData" data-line="leftLine2"></div>
+                    <div class="flowingData" data-line="leftLine2"></div>
+                    <div class="flowingData" data-line="leftLine2"></div>
+
+                    <!-- Right Line -->
+                    <div class="dataLine" id="rightLine"></div>
+                    <div class="flowingData" data-line="rightLine"></div>
+                    <div class="flowingData" data-line="rightLine"></div>
+                    <div class="flowingData" data-line="rightLine"></div>
+                    <div class="flowingData" data-line="rightLine"></div>
+
+                    <!-- Padlock -->
+                    <img src="{{ url_for('static', filename='images/lock-grey.svg') }}" alt="Padlock" id="padlock"/>
+                </div>
+                </div>
+            </div>
+
+
+            <div class="section3">
+                <p style="font-size: 1.4em; color: #f0f0f0; margin-bottom: 0;">
+                    Precision matching is key.
+                </p>
+                <h2 class="subhead-pink">Advanced RAG Technology</h2>
+                <div style="max-width: 750px;">
+                    <p style="font-size: 1.2em; color: #afafaf;">
+                        Our cutting-edge Retrieval Augmented Generation (RAG) technology transforms how project teams are assembled. Our algorithm meticulously analyzes project specifics, employee resumes, and professional interests, ensuring a precision match that aligns talent with task. This optimized pairing not only enhances project outcomes but also fosters employee satisfaction and growth.
+                    </p>
+                </div>
+                <div class="ring" style="margin-top: 60px">
+                    <div class='ring1'></div>
+                    <div class='ring2'></div>
+                    <div class='ring3'></div>
+                    <div class='ring4'></div>
+                    <div class='ring5'></div>
+                    <p style="font-size: 1.3em; color:#fff">Resume, Talent </br> +  Project </br> = Match</p>
+                </div>
+            </div>
+
+
+
+
             
-            
+
         </div>
-        
-        
-        <div id='shape'>
-            <script type="text/javascript">
-                console.clear();
-                const shape = document.getElementById('shape')
-
-                const radii = {
-                top: 50,
-                right: 50,
-                bottom: 50,
-                left: 50
-                }
-
-                const dx = {
-                top: [],
-                right: [],
-                bottom: [],
-                left: []
-                }
-
-                const formatBorderRadius = (top, right, bottom, left) => {
-                return `${top}% ${100-top}% ${100-bottom}% ${bottom}% / ${left}% ${right}% ${100-right}% ${100-left}%`
-                }
-
-                const updateBorderRadius = (top, right, bottom, left) => {
-                shape.style.borderRadius = formatBorderRadius(top, right, bottom, left);
-                }
-
-                const random = (x) => 2 * x * (0.5 - Math.random())
-
-                const smoothChange = (x, dx) => {
-                if (dx.length > 60) dx.shift();
-                
-                dx.push(random(5) + (50 - x)/20)
-                
-                x = x + dx.reduce((a,b) => a+b)/dx.length
-                
-                return [x, dx]
-                }
-
-                setInterval(() => {
-                [radii.top, dx.top] = smoothChange(radii.top, dx.top);
-                [radii.right, dx.right] = smoothChange(radii.right, dx.right);
-                [radii.bottom, dx.bottom] = smoothChange(radii.bottom, dx.bottom);
-                [radii.left, dx.left] = smoothChange(radii.left, dx.left);
-                
-                updateBorderRadius(
-                    radii.top,
-                    radii.right,
-                    radii.bottom,
-                    radii.left
-                )
-                }, 
-                15
-                )
-            </script>
-        </div>
-        
-
-        
-        <!-- <script src="script.js"></script> -->
     </body>
 </html>

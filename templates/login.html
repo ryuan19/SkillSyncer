@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body style="background-color: #000012;">
+    <div class="centered">
+
+        <div>
+            <h2 class="subhead">Log In</h1>
+            <div style="background-color: #323232; padding: 20px; border-radius: 10px; margin-top: 30px">
+                <form action="{{ url_for('login') }}" method="post" class="input_form" style="margin: 0px;">
+                    <input type="text" name="username" placeholder="Username" required style="margin: 10px; padding: 15px ">
+                    <input type="password" name="password" placeholder="Password" required style="margin: 10px; padding: 15px ">
+                    <button type="submit" class="primary" style="margin: 10px; padding: 15px ">Log In</button>
+                </form>
+                <p style="color:white">Don’t have an account? <a href="{{ url_for('signup') }}" id="link-blue" >Sign Up</a></p>
+                <a href="{{ url_for('index') }}" >cancel</a>  
+            </div>       
+        </div>
+
+    </div>
+</body>
+</html>

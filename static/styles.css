@@ -677,3 +677,10 @@ li {
 .encrypt-page {
     max-width: 300px;
 }
+
+#link-blue {
+    color: #337aff
+}
+#link-blue:hover {
+    color: #000
+}
