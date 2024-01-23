@@ -9,6 +9,11 @@
 
         <div>
             <h2 class="subhead">Log In</h1>
+                {% if error %}
+                <div style="color: red;">
+                    {{ error }}
+                </div>
+                {% endif %}
             <div style="background-color: #323232; padding: 20px; border-radius: 10px; margin-top: 30px">
                 <form action="{{ url_for('login') }}" method="post" class="input_form" style="margin: 0px;">
                     <input type="text" name="username" placeholder="Username" required style="margin: 10px; padding: 15px ">
