@@ -4,9 +4,11 @@ from PIL import Image
 import numpy as np
 from clip import get_probs
 import json
-from util import final_response
+from util import final_response, extract_text_from_pdf
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from llm import GPT4QAModel
 
 app = Flask(__name__)
 
@@ -20,6 +22,18 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(80), nullable=False)
+
+
+class Employee(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100))  # Employee's name or identifier
+    summary = db.Column(db.Text, nullable=False) 
+    skills = db.Column(db.Text, nullable=False)  
+    hobbies = db.Column(db.Text, nullable=False)
+
+    user = db.relationship('User', backref=db.backref('employees', lazy=True))
+
 
 # Function to initialize the database
 def initialize_db():
@@ -80,11 +94,51 @@ def show_users():
     return user_data
 
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=["GET", "POST"])
 def dashboard():
+    current_date = datetime.now()
+    formatted_date = str(current_date.strftime("%B %d, %Y"))
     if 'username' in session:
-        return render_template('dashboard.html', username=session['username'])
+        user = User.query.filter_by(username=session['username']).first()
+        if request.method == 'POST':
+            resume_file = request.files.get('resume')
+            if resume_file and allowed_file(resume_file.filename):
+                resume_text = extract_text_from_pdf(resume_file)
+                name, summary, skills, hobbies = summarize_resume(resume_text)
+                # Create a new Employee entry
+                new_employee = Employee(user_id=user.id, name=name, summary=summary, skills=skills, hobbies=hobbies)
+                db.session.add(new_employee)
+                db.session.commit()
+
+        employees = user.employees if user else []
+        return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=employees)
+
     return redirect(url_for('login'))
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
+
+
+def summarize_resume(resume_text):
+    # Change later
+    prompt = '''You are a data retriever. I will give you a resume, and I want you to summarize it.
+    I want you to output a python dictionary, with the keys - name, summary, skills, hobbies.
+    For name, extract the name and add it.
+    For summary, give me a short 100 word summary of the whole resume and the person.
+    For skills, list out skills they are good at.
+    For hobbies, list of hobbies if they have, or else just write None.
+    Here is the resume:
+    '''
+    prompt += resume_text
+    model = GPT4QAModel()
+    response = model.answer_question(prompt)
+    response = json.loads(response)
+    name = str(response['name'])
+    summary = str(response['summary'])
+    skills = str(response['skills'])
+    hobbies = str(response['hobbies'])
+    return name, summary, skills, hobbies
 
 
 if __name__ == '__main__':
