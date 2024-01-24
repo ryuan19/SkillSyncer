@@ -12,7 +12,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 175px;
+    /* padding-top: 150px; */
     /* padding-bottom: 150px; */
     font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
     
@@ -29,6 +29,7 @@ body {
     display: flex;
     align-items: left;
     max-width: 670px;
+    animation: fadeInUp 1s ease-in-out;
     /* background-color: green; */
 }
   
@@ -228,7 +229,7 @@ h1 span {
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -293,10 +294,8 @@ h1 span {
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding-top: 150px;
     padding-bottom: 150px;
-    animation: fadeInUp 1s ease-in-out;
-    
-    
 }
 
 
@@ -309,7 +308,7 @@ h1 span {
     width:100%;
     padding-top: 150px;
     padding-bottom: 200px;
-    border-top: 5px solid transparent;
+    border-top: 6px solid transparent;
     /* border-bottom: 7px solid transparent; */
     border-image: linear-gradient(to right, #323232, #337aff, #337aff, #323232) 1;
 }
@@ -324,7 +323,7 @@ h1 span {
     width:100%;
     padding-top: 150px;
     padding-bottom: 150px;
-    border-top: 5px solid transparent;
+    border-top: 6px solid transparent;
     /* border-bottom: 7px solid transparent; */
     border-image: linear-gradient(to right, #323232, #e91c97, #323232) 1;
 }
@@ -683,4 +682,12 @@ li {
 }
 #link-blue:hover {
     color: #000
+}
+
+.dashboard-header {
+    background-color: #000012; 
+    margin: 0px; 
+    padding: 20px;
+    border-bottom: 4px solid transparent;
+    border-image: linear-gradient(to right, #323232, #337aff, #337aff, #323232) 1;
 }

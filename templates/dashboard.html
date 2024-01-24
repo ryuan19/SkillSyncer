@@ -2,11 +2,25 @@
 <html>
 <head>
     <title>Dashboard</title>
-    <!-- Add any additional head elements here -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <h1>Welcome to your Dashboard</h1>
-    <p>Hello, {{ username }}</p>
+<body style="align-items: left;">
+    <div style="flex-direction: column; width: 100%;">
+        <div class="dashboard-header">
+            <h2 class="subhead" style="font-size: 32px; margin: 0px">Company Admin Dashboard</h2>
+        </div>
+        <div style="text-align: left; margin: 40px">
+            <h1>Company Info</h1>
+            <h3 id="name" style="font-size: 24px">Hello, {{ username }}!</h3>
+            <h1>Employees</h1>
+            <h3>Add employees here</h3>
+            <h1>Projects</h1>
+            <h3>Add projects here</h3>
+        </div>
+        
+    
+    </div>
+    
     <!-- You can add more dashboard elements here -->
 </body>
 </html>
