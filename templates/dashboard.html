@@ -4,35 +4,39 @@
     <title>Dashboard</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body style="align-items: left;">
+<body style="align-items: left; background-color: #f0f0f0;">
     <div style="flex-direction: column; width: 100%;">
         <div class="dashboard-header">
             <h2 class="subhead" style="font-size: 32px; margin: 0px">Company Admin Dashboard</h2>
         </div>
         <div style="text-align: left; margin: 40px">
-            <p style="font-size: 32px;">{{ date }}</p>
-            <h1>Company Info</h1>
-            <h3 id="name" style="font-size: 24px">Hello, {{ username }}!</h3>
+            <p style="font-size: 28px; margin-bottom: 10px">{{ date }}</p>
+            <p style="font-size: 48px; color: #337aff; margin: 0px">Hello, {{ username }}!</p>
             <h1>Employees</h1>
-            <h3>Add employees here</h3>
             
-            <form action="{{ url_for('dashboard') }}" method="post" enctype="multipart/form-data" style="margin: 0; padding:10px; gap:0px; background-color: #cfcfcf; width: 305px; border-radius: 5px;">
+            <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee">
                 <!-- <input type="text" name="employee_name" placeholder="Employee Name" required> -->
+                <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: bold;">Add Employee PDF Resume here</p>
                 <input type="file" name="resume" accept=".pdf">
-                <button class=primary style="font-size: 18px; padding: 10px; border-radius: 5px;" type="submit">+ Add</button>
+                <button style="font-size: 18px; padding: 5px 10px 5px 10px; border-radius: 5px;" type="submit">+ Add</button>
             </form>
 
-            <div>
-                <ul>
-                    {% for employee in employees %}
-                        <li>Name : {{ employee.name }}</li>
-                        <li>Summary : {{ employee.summary }}</li>
-                        <li>Skills : {{ employee.skills }}</li>
-                        <li>Hobbies : {{ employee.hobbies }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            
+   
+            <ul class="dashboard-box">
+                {% for employee in employees %}
+                <div>  
+                    <h3 style="font-size: 24px; margin: 0; margin-bottom: 10px; color:#000">{{ employee.name }}</h3>
+                    <!-- <li class="employee-name"></li> -->
+                    <li>Summary : {{ employee.summary }}</li>
+                    <li>Skills : {{ employee.skills }}</li>
+                    <li>Hobbies : {{ employee.hobbies }}</li>
+                    <li>Suitable Jobs : {{ employee.jobs }}</li>
+                    <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                        <button class="button-delete-employee" type="submit">Delete employee</button>
+                    </form>
+                </div>  
+                {% endfor %}
+            </ul>
             <h1>Projects</h1>
             <h3>Add projects here</h3>
             
@@ -40,3 +44,4 @@
     </div>
 </body>
 </html>
+

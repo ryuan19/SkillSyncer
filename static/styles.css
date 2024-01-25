@@ -100,10 +100,10 @@ button {
     margin-right: 20px;
     font-weight: bold;
 }
-
+/* 
 h3 {
-    margin: 5px;
-}
+    margin: 10px 50px 0px 0px;
+} */
 
 .pesticide-info-box {
     background-color: #fff; /* White background */
@@ -690,4 +690,34 @@ li {
     padding: 20px;
     border-bottom: 4px solid transparent;
     border-image: linear-gradient(to right, #323232, #337aff, #337aff, #323232) 1;
+}
+
+.dashboard-box > div {
+    background-color: #fff; 
+    margin: 20px 20px 0px -40px; 
+    padding: 20px 20px 20px 50px;
+    text-align: left;
+    border-radius: 5px;
+    border: 1px solid #5a5a5a;
+}
+
+.button-delete-employee {
+    padding: 10px;
+    background-color: #a10000;
+    font-size: 14px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.box-add-employee {
+    margin: 0; 
+    padding:10px; 
+    gap:0px; 
+    background-color: #fff; 
+    width: 305px; 
+    border-radius: 5px; 
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid #5a5a5a;
+
 }
