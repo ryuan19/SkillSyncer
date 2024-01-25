@@ -26,11 +26,9 @@
         </div>
         <div style="text-align: left; margin: 40px">
             <p style="font-size: 28px; margin-bottom: 10px">{{ date }}</p>
-            <!-- <p style="font-size: 48px; color: #337aff; margin: 0px">Hello, {{ username }}!</p> -->
             <h1>Employees</h1>
             
             <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee">
-                <!-- <input type="text" name="employee_name" placeholder="Employee Name" required> -->
                 <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: bold;">Add Employee PDF Resume here</p>
                 <input type="file" name="resume" accept=".pdf">
                 <button style="font-size: 18px; padding: 5px 10px 5px 10px; border-radius: 5px;" type="submit">+ Add</button>
