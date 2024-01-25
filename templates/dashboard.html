@@ -1,17 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard for {{ username }} </title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            /* background: linear-gradient(to bottom, #000012,#000012, #337aff, #323232);  */
+            background-color: #f0f0f0;
+            align-items: center; 
+            justify-content: center;
+            color: #000; 
+        }
+    </style>
 </head>
-<body style="align-items: left; background-color: #f0f0f0;">
+<body>
     <div style="flex-direction: column; width: 100%;">
         <div class="dashboard-header">
-            <h2 class="subhead" style="font-size: 32px; margin: 0px">Company Admin Dashboard</h2>
+            <h2 class="subhead" style="font-size: 40px; margin: 0px; display: inline-block;">{{ username.capitalize() }} Admin Dashboard</h2>
+            <form action="{{ url_for('logout') }}" method="post" style="float: right;">
+                <button type="submit" class="logout-button">log out</button>
+            </form>
         </div>
         <div style="text-align: left; margin: 40px">
             <p style="font-size: 28px; margin-bottom: 10px">{{ date }}</p>
-            <p style="font-size: 48px; color: #337aff; margin: 0px">Hello, {{ username }}!</p>
+            <!-- <p style="font-size: 48px; color: #337aff; margin: 0px">Hello, {{ username }}!</p> -->
             <h1>Employees</h1>
             
             <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee">
@@ -26,7 +41,6 @@
                 {% for employee in employees %}
                 <div>  
                     <h3 style="font-size: 24px; margin: 0; margin-bottom: 10px; color:#000">{{ employee.name }}</h3>
-                    <!-- <li class="employee-name"></li> -->
                     <li>Summary : {{ employee.summary }}</li>
                     <li>Skills : {{ employee.skills }}</li>
                     <li>Hobbies : {{ employee.hobbies }}</li>
@@ -38,7 +52,29 @@
                 {% endfor %}
             </ul>
             <h1>Projects</h1>
-            <h3>Add projects here</h3>
+            <div class="box-add-project" style="margin-bottom: 20px;">
+                <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
+                    <p style="color: #000; font-weight: bold; margin-bottom: 10px;">Add Project Details here</p>
+                    <div style="display: flex; align-items: center; padding: 10px;">
+                        <input type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px;">
+                        <textarea name="description" placeholder="Project Description" required style="flex-grow: 2; margin-right: 10px; padding: 20px;"></textarea>
+                        <button style="font-size: 18px; padding: 5px 10px; border-radius: 5px;" type="submit">+ Add</button>
+                    </div>
+                </form>
+            </div>
+            
+
+            <ul class="dashboard-box">
+                {% for project in projects %}
+                <div class="project-entry">  
+                    <h3>{{ project.title }}</h3>
+                    <p>{{ project.description }}</p>
+                    <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                        <button class="button-delete-employee" type="submit">Delete Project</button>
+                    </form>
+                </div>  
+                {% endfor %}
+            </ul>
             
         </div>
     </div>

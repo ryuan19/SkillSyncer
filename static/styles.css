@@ -687,14 +687,15 @@ li {
 .dashboard-header {
     background-color: #000012; 
     margin: 0px; 
-    padding: 20px;
-    border-bottom: 4px solid transparent;
-    border-image: linear-gradient(to right, #323232, #337aff, #337aff, #323232) 1;
+    padding: 30px;
+    border-bottom: 7px solid transparent;
+    border-image: linear-gradient(to right, #337aff, #337aff, #323232, #323232) 1;
+    text-align: left;
 }
 
 .dashboard-box > div {
     background-color: #fff; 
-    margin: 20px 20px 0px -40px; 
+    margin: 20px 0px 0px -40px; 
     padding: 20px 20px 20px 50px;
     text-align: left;
     border-radius: 5px;
@@ -719,5 +720,29 @@ li {
     align-items: center; 
     justify-content: center; 
     border: 1px solid #5a5a5a;
+}
 
+.box-add-project {
+    margin: 0; 
+    padding:10px; 
+    background-color: #fff; 
+    width: 700px; 
+    border-radius: 5px; 
+    align-items: center; 
+    justify-content: space-between; 
+    border: 1px solid #5a5a5a;
+}
+
+.logout-button {
+    padding: 5px 10px;
+    background-color: #282828;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    margin: 10px 10px 0px 0px;
+}
+
+.logout-button:hover {
+    background-color: #3a3a3a;
 }

@@ -32,8 +32,16 @@ class Employee(db.Model):
     skills = db.Column(db.Text, nullable=False)  
     hobbies = db.Column(db.Text, nullable=False)
     jobs = db.Column(db.Text, nullable=False)
-
     user = db.relationship('User', backref=db.backref('employees', lazy=True))
+
+
+class Project(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    user = db.relationship('User', backref=db.backref('projects', lazy=True))
+
 
 
 # Function to initialize the database
@@ -71,6 +79,13 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()  # Clear the session
+    flash('You have been logged out.')
+    return redirect(url_for('login'))
+
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -103,7 +118,8 @@ def dashboard():
         user = User.query.filter_by(username=session['username']).first()
         if user:
             employees = Employee.query.filter_by(user_id=user.id).all()
-            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=employees)
+            projects = Project.query.filter_by(user_id=user.id).all()
+            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=employees, projects=projects)
         else:
             flash('User not found')
             return redirect(url_for('login'))
@@ -149,6 +165,39 @@ def delete_employee(employee_id):
     return redirect(url_for('dashboard'))
 
 
+@app.route('/add_project', methods=['POST'])
+def add_project():
+    if 'username' in session:
+        user = User.query.filter_by(username=session['username']).first()
+        title = request.form.get('title')
+        description = request.form.get('description')
+        new_project = Project(user_id=user.id, title=title, description=description)
+        db.session.add(new_project)
+        db.session.commit()
+        flash('Project added successfully')
+        return redirect(url_for('dashboard'))
+    else:
+        flash('User not logged in')
+        return redirect(url_for('login'))
+
+
+@app.route('/delete_project/<int:project_id>', methods=['POST'])
+def delete_project(project_id):
+    if 'username' not in session:
+        flash('User not logged in')
+        return redirect(url_for('login'))
+
+    project_to_delete = Project.query.get(project_id)
+    if project_to_delete:
+        db.session.delete(project_to_delete)
+        db.session.commit()
+        flash('Project deleted successfully')
+    else:
+        flash('Project not found')
+
+    return redirect(url_for('dashboard'))
+
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
@@ -179,67 +228,5 @@ def summarize_resume(resume_text):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-# @app.route('/explore_encryption')
-# def explore_encryption():
-#     return render_template('encrypt.html')
-
-
-# def generate_categories(pests):
-#     return [f"a photo of the pest {x}" for x in pests]
-
-# @app.route('/process_form', methods=['POST'])
-# def process_form():
-#     if 'image' not in request.files or request.files['image'].filename == "":
-#         return "No image uploaded!", 400  # Return an error message
-
-#     file = request.files['image']
-
-#     try:
-#         # Ensure the file is an image
-#         image = Image.open(file.stream)
-#         image.save("./img/img_1.png")
-#     except IOError:
-#         return "Invalid image file!", 400  # Return an error message
-
-#     # Retrieve text input from the form
-#     crop = request.form.get('crop_name', '')
-#     state = request.form.get('state', '')
-
-#     with open("pests.json", "r") as file:
-#         pests = json.load(file)
-
-#     dict_probs = get_probs(categories=generate_categories(pests))
-#     sorted_dict_probs = dict(sorted(dict_probs.items(), key=lambda item: item[1]))
-
-#     # Assuming you want the last item after sorting
-#     if sorted_dict_probs:
-#         pest, percentage = list(sorted_dict_probs.items())[-1]
-#         pest = pest.replace("a photo of the pest ", "")
-#         answer = final_response(crop=crop, state=state, pest=pest, topk=3)
-
-#         # Ensure answer is a dictionary
-#         if isinstance(answer, str):
-#             output = json.loads(answer)
-#         else:
-#             output = answer
-
-#         # Load URLs from pesticide_urls.json
-#         with open("pesticide_urls.json", "r") as url_file:
-#             pesticide_urls = json.load(url_file)
-
-#         # Add URLs to the output data
-#         for pesticide_number in output:
-#             if pesticide_number in pesticide_urls:
-#                 output[pesticide_number]['url'] = pesticide_urls[pesticide_number]
-#             else:
-#                 output[pesticide_number]['url'] = None  # Or a default value
-
-#     else:
-#         output = "No pest data found"
-
-#     return render_template('identification.html', dict_probs=output, pest=pest, percentage=percentage, crop=crop, location=state)
 
 
