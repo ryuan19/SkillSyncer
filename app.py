@@ -1,14 +1,8 @@
-import asyncio
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from PIL import Image
-import numpy as np
-from clip import get_probs
-import json
-from util import final_response, extract_text_from_pdf
+from util import extract_text_from_pdf, allowed_file, summarize_resume
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from llm import GPT4QAModel
 
 app = Flask(__name__)
 
@@ -23,17 +17,15 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(80), nullable=False)
 
-
 class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100))  # Employee's name or identifier
+    name = db.Column(db.String(100))  
     summary = db.Column(db.Text, nullable=False) 
     skills = db.Column(db.Text, nullable=False)  
     hobbies = db.Column(db.Text, nullable=False)
     jobs = db.Column(db.Text, nullable=False)
     user = db.relationship('User', backref=db.backref('employees', lazy=True))
-
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,8 +33,6 @@ class Project(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     user = db.relationship('User', backref=db.backref('projects', lazy=True))
-
-
 
 # Function to initialize the database
 def initialize_db():
@@ -57,11 +47,9 @@ initialize_db()
 def index():
     return render_template('index.html')
 
-
 @app.route('/explore_form')
 def explore_form():
     return render_template('login.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,13 +66,11 @@ def login():
             return render_template('login.html', error="Invalid username or password")
     return render_template('login.html')
 
-
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()  # Clear the session
     flash('You have been logged out.')
     return redirect(url_for('login'))
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -102,13 +88,11 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
-
 @app.route('/show-users')
 def show_users():
     users = User.query.all()
     user_data = '<br>'.join([f'Username: {user.username}, Email: {user.email}' for user in users])
     return user_data
-
 
 @app.route('/dashboard', methods=["GET"])
 def dashboard():
@@ -126,7 +110,6 @@ def dashboard():
     else:
         flash('User not logged in')
         return redirect(url_for('login'))
-
 
 @app.route('/add_employee', methods=['POST'])
 def add_employee():
@@ -147,8 +130,6 @@ def add_employee():
         flash('User not logged in')
         return redirect(url_for('login'))
 
-
-
 @app.route('/delete_employee/<int:employee_id>', methods=['POST'])
 def delete_employee(employee_id):
     if 'username' not in session:
@@ -164,7 +145,6 @@ def delete_employee(employee_id):
 
     return redirect(url_for('dashboard'))
 
-
 @app.route('/add_project', methods=['POST'])
 def add_project():
     if 'username' in session:
@@ -179,7 +159,6 @@ def add_project():
     else:
         flash('User not logged in')
         return redirect(url_for('login'))
-
 
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
 def delete_project(project_id):
@@ -198,32 +177,6 @@ def delete_project(project_id):
     return redirect(url_for('dashboard'))
 
 
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
-
-
-def summarize_resume(resume_text):
-    # Change later
-    prompt = '''You are a data retriever. I will give you a resume, and I want you to summarize it.
-    I want you to output a python dictionary, with the keys - name, summary, skills, hobbies, jobs.
-    For name, extract the name and add it.
-    For summary, give me a short 100 word summary of the whole resume and the person.
-    For skills, list out skills they are good at.
-    For hobbies, list of hobbies if they have, or else just write None.
-    For jobs, list of 5 job titles that you think this person may be suitable for.
-    Here is the resume:
-    '''
-    prompt += resume_text
-    model = GPT4QAModel()
-    response = model.answer_question(prompt)
-    response = json.loads(response)
-    name = str(response['name'])
-    summary = str(response['summary'])
-    skills = str(response['skills'])
-    hobbies = str(response['hobbies'])
-    jobs = str(response['jobs'])
-    return name, summary, skills, hobbies, jobs
 
 
 if __name__ == '__main__':

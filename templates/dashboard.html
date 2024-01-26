@@ -15,6 +15,11 @@
             color: #000; 
         }
     </style>
+    <script>
+        function showSpinner() {
+            document.getElementById('loading-spinner').style.display = 'block';
+        }
+    </script>
 </head>
 <body>
     <div style="flex-direction: column; width: 100%;">
@@ -25,16 +30,30 @@
             </form>
         </div>
         <div style="text-align: left; margin: 40px">
+            
             <p style="font-size: 28px; margin-bottom: 10px">{{ date }}</p>
             <h1>Employees</h1>
-            
-            <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee">
-                <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: bold;">Add Employee PDF Resume here</p>
-                <input type="file" name="resume" accept=".pdf">
-                <button style="font-size: 18px; padding: 5px 10px 5px 10px; border-radius: 5px;" type="submit">+ Add</button>
-            </form>
 
-   
+                <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee" onsubmit="showSpinner()">
+                    <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: bold;">Add Employee PDF Resume here</p>
+                    <input type="file" name="resume" accept=".pdf">
+                    <button style="font-size: 18px; padding: 5px 10px 5px 10px; border-radius: 5px;" type="submit">+ Add</button>
+                    <div id="loading-spinner" style="display: none; margin: 30px 30px 30px 60px">
+                        <div class="ring" style="width: 100px; height: 100px; text-align: center;">
+                            <div class='ring1' style="border:1px solid #e91c97; border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97 "></div>
+                            <div class='ring2' style="border:1px solid #595959;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #595959"></div>
+                            <div class='ring3' style="border:1px solid #e91c97;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                            <div class='ring4' style="border:1px solid #595959;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #595959"></div>
+                            <div class='ring5' style="border:1px solid #e91c97;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                            <p style="font-size: 20px; line-height: 1.1; color:#000; margin-bottom: 5px">AI is analyzing resume...</p>
+                            <p style="font-size: 12px; line-height: 1.1; color:#595959; margin-bottom: 5px">This may take up to 30 sec.</p>
+
+                        </div>
+                    </div>
+                </form>
+            
+            
+            
             <ul class="dashboard-box">
                 {% for employee in employees %}
                 <div>  
@@ -76,6 +95,8 @@
             
         </div>
     </div>
+    
+    
 </body>
 </html>
 

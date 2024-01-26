@@ -1,15 +1,12 @@
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from llm import GPT4QAModel
 from PyPDF2 import PdfReader
-from prompt import get_prompt
 import numpy as np
 import os
 import json
 from json.decoder import JSONDecodeError
 from tqdm import tqdm
 from PyPDF2.errors import PdfReadError
-from prompt2 import get_prompt2
-
 
 def extract_text_from_pdf(pdf_file):
     pdf_text = ""
@@ -18,82 +15,33 @@ def extract_text_from_pdf(pdf_file):
         pdf_text += page.extract_text()
     return pdf_text
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
 
-def make_summary_from_pdf(pdf_file):
+def summarize_resume(resume_text):
+    # Change later
+    prompt = '''You are a data retriever. I will give you a resume, and I want you to summarize it.
+    I want you to output a python dictionary, with the keys - name, summary, skills, hobbies, jobs.
+    For name, extract the name and add it.
+    For summary, give me a short 100 word summary of the whole resume and the person.
+    For skills, list out skills they are good at.
+    For hobbies, list of hobbies if they have, or else just write None.
+    For jobs, list of 5 job titles that you think this person may be suitable for.
+    Here is the resume:
+    '''
+    prompt += resume_text
     model = GPT4QAModel()
-    pdf = extract_text_from_pdf(pdf_file)
-    seed = get_prompt(pdf_text=pdf)
-    response = model.answer_question(seed)
-    return response
-
-
-def populate_summaries():
-    list_of_files = os.listdir('./pdfs')
-
-    for file in tqdm(list_of_files, desc="Processing files"):
-        if file == '.DS_Store':
-            continue
-
-        output_path = f'./summaries/{file.replace(".pdf", ".json")}'
-        # Skip processing if the output file already exists
-        # if os.path.exists(output_path):
-        #     continue
-        out_file = file.replace('.pdf', '.json')
-
-        if out_file in os.listdir('./summaries'):
-            continue
-
-        pdf_path = f'./pdfs/{file}'
-
-        try:
-            llm_response = make_summary_from_pdf(pdf_path)
-            print(llm_response)
-            if llm_response is not None:
-                try:
-                    data = json.loads(llm_response)
-                    with open(output_path, 'w') as f:
-                        json.dump(data, f)
-                except JSONDecodeError as e:
-                    print(f"JSONDecodeError for file {file}: {e}")
-        except PdfReadError as e:
-            print(f"PdfReadError for file {file}: {e}")
-
-
-def list_pests_with_banned_regions():
-    files_with_ban_info = []
-
-    for file in os.listdir('./summaries'):
-        if file.endswith('.json'):
-            file_path = os.path.join('./summaries', file)
-
-            try:
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                    # Check if the key exists and is not an empty string
-                    if data.get("Is this product banned in any region?", "") != "":
-                        files_with_ban_info.append(file)
-            except json.JSONDecodeError as e:
-                print(f"Error reading JSON from file {file}: {e}")
-
-    print(files_with_ban_info)
-
-
-def final_response(crop, state, pest, topk):
-    model = GPT4QAModel()
-    prompt = get_prompt2(crop, state, pest, topk)
-    # print(prompt)
     response = model.answer_question(prompt)
-    # print(response)
-    return response
-
+    response = json.loads(response)
+    name = str(response['name'])
+    summary = str(response['summary'])
+    skills = str(response['skills'])
+    hobbies = str(response['hobbies'])
+    jobs = str(response['jobs'])
+    return name, summary, skills, hobbies, jobs
 
 def main():
     pass
-
-
-    
-
-    
 
 if __name__ == "__main__":
     main()
