@@ -55,7 +55,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-        background-color: green;
+    background-color: green;
 
     
   }
@@ -678,10 +678,12 @@ li {
 }
 
 #link-blue {
-    color: #337aff
+    color: #337aff;
+    text-decoration: none;
+
 }
 #link-blue:hover {
-    color: #000
+    text-decoration: underline;
 }
 
 .dashboard-header {
