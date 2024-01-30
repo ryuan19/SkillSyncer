@@ -688,7 +688,7 @@ li {
 
 .dashboard-header {
     background-color: #000012; 
-    margin: 0px; 
+        margin: 0px; 
     padding: 30px;
     border-bottom: 7px solid transparent;
     border-image: linear-gradient(to right, #71a3ff, #337aff, #337aff,  #323232, #323232) 1;
