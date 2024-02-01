@@ -20,6 +20,7 @@ def allowed_file(filename):
 
 def summarize_resume(resume_text):
     # Change later
+
     prompt = '''You are a data retriever. I will give you a resume, and I want you to summarize it.
     I want you to output a python dictionary, with the keys - name, summary, skills, hobbies, jobs.
     For name, extract the name and add it.
