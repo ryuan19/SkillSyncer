@@ -1,4 +1,5 @@
 import openai
+from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 import os
 
@@ -8,12 +9,15 @@ GPT4_turbo = 'gpt-4-1106-preview'
 
 class GPT4QAModel():
     def __init__(self, model=GPT4):
-        openai.api_key = os.environ.get('OPENAI_API_KEY')
+        #openai.api_key = os.environ.get('OPENAI_API_KEY')
+        self.client = OpenAI(
+            api_key = os.environ.get('OPENAI_API_KEY')
+        )
         self.model = model
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def _attempt_answer_question(self, question, max_tokens=2000, stop_sequence=None):
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
           model=self.model,
           messages=[
                 {"role": "system", "content": "You are Question Answering Portal"},
@@ -22,7 +26,8 @@ class GPT4QAModel():
           temperature=0
         )
 
-        return response["choices"][0]['message']['content'].strip()
+        
+        return response.choices[0].message.content
 
 
     @retry(wait=wait_random_exponential(min=1, max=40), stop=stop_after_attempt(6))
