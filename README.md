@@ -9,8 +9,8 @@
 Team Member's Contributions
 ## Sprint 1
 1. Krrish Chawla
-What I did: 
-What I aim to do for next sprint:
+What I did: Built Front End + Back End, OpenAI Integration, Prompting
+What I aim to do for next sprint: Work on better matching models and data masking or encryption, more front/backend
 
 2. Arvind Saligrama
 What I did: 
