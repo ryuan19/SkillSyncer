@@ -13,9 +13,9 @@ What I did: Built Front End + Back End, OpenAI Integration, Prompting
 What I aim to do for next sprint: Work on better matching models and data masking or encryption, more front/backend
 
 2. Arvind Saligrama
-What I did: 
+What I did:
 What I aim to do for next sprint:
 
 3. Roy Yuan
-What I did: 
-What I aim to do for next sprint:
+What I did: did brute force method for matching, collected resumes, prompting, brainstorm encryption and algorithm
+What I aim to do for next sprint: Integrate better brute force method with app, more backend, work on encryption
