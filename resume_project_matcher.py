@@ -1,7 +1,19 @@
 from llm import GPT4QAModel
 import json
+import PyPDF2
+import numpy as np
+
 
 model = GPT4QAModel()
+
+def get_text_from_pdf(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ''
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text += page.extract_text()
+    return text
 
 def match_resumes_with_projects(resumes, project_descriptions):
     # Assuming resumes and project_descriptions are lists of strings
@@ -27,6 +39,5 @@ def match_resumes_with_projects(resumes, project_descriptions):
 
 
 
-resumes = ['Name: Bob-I can code.', 'Name: Joe-I can manage projects.', 'Name: Lebron-I can clean.']
-project_descriptions = ['Engineer', 'PM', 'janitor']
-print(match_resumes_with_projects(resumes, project_descriptions))
+resume = get_text_from_pdf("/Users/royyuan/Desktop/resumes/oliviagreen.pdf")
+print(resume)
