@@ -37,7 +37,5 @@ def match_resumes_with_projects(resumes, project_descriptions):
     #response = json.loads(response)
     return response
 
-
-
 resume = get_text_from_pdf("/Users/royyuan/Desktop/resumes/oliviagreen.pdf")
 print(resume)
