@@ -118,14 +118,26 @@ def dashboard():
         return redirect(url_for('login'))
 
 def update_best_employees(employee):
-    for project in Project.query.all():
-        project_embedding = np.fromstring(project.embedding[1:-1], sep=' ')
-        curr_best_employee = Employee.query.get(project.best_employee_id)
-        curr_best_employee_embedding = np.fromstring(curr_best_employee.embedding[1:-1], sep=' ')
-        employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')
-        if cos_similarity(employee_embedding, project_embedding) > cos_similarity(curr_best_employee_embedding, project_embedding):
-            project.best_employee_id = employee.id
-            project.best_employee_name = employee.name
+    if 'username' in session:
+        user = User.query.filter_by(username=session['username']).first()
+        if len(user.employees) == 1:
+            for project in user.projects:
+                project.best_employee_id = employee.id
+                project.best_employee_name = employee.name
+        
+        else:
+            for project in user.projects:
+                project_embedding = np.fromstring(project.embedding[1:-1], sep=' ')
+                curr_best_employee = Employee.query.get(project.best_employee_id)
+                curr_best_employee_embedding = np.fromstring(curr_best_employee.embedding[1:-1], sep=' ')
+                employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')
+                if cos_similarity(employee_embedding, project_embedding) > cos_similarity(curr_best_employee_embedding, project_embedding):
+                    project.best_employee_id = employee.id
+                    project.best_employee_name = employee.name
+        db.session.commit()
+    else:
+        flash('User not logged in')
+        return redirect(url_for('login'))
 
 
 
@@ -171,16 +183,20 @@ def delete_employee(employee_id):
 def get_best_employee_id_name_for_project(embedding):
   best_similarity = -1
   best_employee= None
-  
-  #project = Project.query.get(project_id)
-  for employee in Employee.query.all():
-    employee_embedding = get_employee_embedding(employee)
-    if employee_embedding is not None:
-        similarity = cos_similarity(embedding, employee_embedding)
-        if similarity > best_similarity:
-            best_similarity = similarity
-            best_employee= employee
-  return best_employee.id, best_employee.name
+  if 'username' in session:
+    user = User.query.filter_by(username=session['username']).first()
+    #project = Project.query.get(project_id)
+    for employee in user.employees:
+        employee_embedding = get_employee_embedding(employee)
+        if employee_embedding is not None:
+            similarity = cos_similarity(embedding, employee_embedding)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_employee= employee
+    return best_employee.id, best_employee.name
+  else:
+    flash('User not logged in')
+    return redirect(url_for('login'))
 
 
 @app.route('/add_project', methods=['POST'])
@@ -192,11 +208,12 @@ def add_project():
         embedding = get_embedding_from_project(description)
         strembedding = np.array2string(embedding)
         new_project = Project(user_id=user.id, title=title, description=description, embedding=strembedding)
-        new_best_employee_id, new_best_employee_name = get_best_employee_id_name_for_project(embedding)
-        new_project.best_employee_id = new_best_employee_id
-        new_project.best_employee_name = new_best_employee_name
-        print(new_best_employee_id)
-        print(new_best_employee_name)
+        if len(user.employees) > 0:
+            new_best_employee_id, new_best_employee_name = get_best_employee_id_name_for_project(embedding)
+            new_project.best_employee_id = new_best_employee_id
+            new_project.best_employee_name = new_best_employee_name
+        #print(new_best_employee_id)
+        #print(new_best_employee_name)
         db.session.add(new_project)
 
         db.session.commit()
