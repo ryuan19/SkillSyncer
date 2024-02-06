@@ -72,10 +72,10 @@
             <h2>Projects</h2>
             <div class="box-add-project" style="margin-bottom: 20px;">
                 <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
-                    <p style="color: #000; font-weight: bold; margin-bottom: 10px;">Add Project Details here</p>
+                    <p style="color: #000; font-weight: bold; margin-bottom: 10px; margin-top: 0;">Add Project Details here</p>
                     <div style="display: flex; align-items: center; padding: 10px;">
-                        <input type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px;">
-                        <textarea name="description" placeholder="Project Description" required style="flex-grow: 2; margin-right: 10px; padding: 20px;"></textarea>
+                        <textarea type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px; height: 40px"></textarea>
+                        <textarea name="description" placeholder="Project Description" required style="flex-grow: 1; margin-right: 10px; padding: 10px;height: 40px"></textarea>
                         <button class="button-add" type="submit">+ Add</button>
                     </div>
                 </form>
@@ -89,7 +89,7 @@
                     <p>Project description: {{ project.description }}</p>
                     <p>The best employee for this job is: {{ project.best_employee_name}}</p>
                     <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
-                        <button class="button-delete-employee" type="submit">Delete Project</button>
+                        <button class="button-delete-employee" type="submit">Delete project</button>
                     </form>
                 </div>  
                 {% endfor %}

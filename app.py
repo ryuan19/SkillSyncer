@@ -109,7 +109,7 @@ def dashboard():
         if user:
             employees = Employee.query.filter_by(user_id=user.id).all()
             projects = Project.query.filter_by(user_id=user.id).all()
-            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=employees, projects=projects)
+            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=reversed(employees), projects=reversed(projects))
         else:
             flash('User not found')
             return redirect(url_for('login'))
@@ -190,6 +190,7 @@ def get_best_employee_id_name_for_project(embedding):
         employee_embedding = get_employee_embedding(employee)
         if employee_embedding is not None:
             similarity = cos_similarity(embedding, employee_embedding)
+            print(employee.name, f'{similarity=}')
             if similarity > best_similarity:
                 best_similarity = similarity
                 best_employee= employee

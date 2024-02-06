@@ -727,6 +727,7 @@ li {
 .box-add-project {
     margin: 0; 
     padding:10px; 
+    gap:0px;
     background-color: #fff; 
     width: 700px; 
     border-radius: 5px; 
