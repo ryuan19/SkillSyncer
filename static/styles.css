@@ -800,12 +800,14 @@ li {
     justify-content: center;
     padding: 20px;
     box-sizing: border-box;
+    z-index: 2;
+    border-radius: 10px;
 }
 
 .popup-content {
     background-color: #fff;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 10px;
     width: 100%;
     max-width: 500px; /* Adjust the width as needed */
 }
