@@ -720,10 +720,11 @@ li {
     gap:0px; 
     background-color: #fff; 
     width: 305px; 
-    border-radius: 5px; 
+    border-radius: 10px; 
     align-items: center; 
     justify-content: center; 
-    border: 1px solid #5a5a5a;
+    border: 1px solid #8F8F94;
+    z-index: 1;
 }
 
 .button-add {
@@ -746,10 +747,10 @@ li {
     gap:0px;
     background-color: #fff; 
     width: 700px; 
-    border-radius: 5px; 
+    border-radius: 10px; 
     align-items: center; 
     justify-content: space-between; 
-    border: 1px solid #5a5a5a;
+    border: 1px solid #8F8F94;
 }
 
 .logout-button {
@@ -771,17 +772,19 @@ li {
 
 
 .employee-card {
-    border: 1px solid #000;
+    border: 1px solid #8F8F94;
     padding: 20px;
     /* background-color: black; */
     /* margin-bottom: 30px; */
-    width: 285px; 
+    width: 295px; 
     margin-right: 20px;
     justify-content: center;
     align-items: center;
-    background-color: #fff;
+    background-color: #ffffff;
     border-radius: 10px;
     margin-bottom: 20px;
+    box-shadow: 0 0 15px 1px #abbdff;
+    z-index: 1;
 
 }
 

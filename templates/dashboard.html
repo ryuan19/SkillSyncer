@@ -9,7 +9,7 @@
             padding: 0;
             font-family: Arial, sans-serif;
             /* background: linear-gradient(to bottom, #000012,#000012, #337aff, #323232);  */
-            background-color: #fbfbfb;
+            background-color: #F8FBFE;
             align-items: center; 
             justify-content: center;
             color: #000; 
@@ -36,7 +36,7 @@
             <h2>Employees</h2>
 
                 <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee" onsubmit="showSpinner()">
-                    <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: bold;">Add Employee PDF Resume here</p>
+                    <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: 100;">Add Employee by PDF Resume</p>
                     <input type="file" name="resume" accept=".pdf">
                     <button class="button-add" type="submit">+ Add</button>
                     <div id="loading-spinner" style="display: none; margin: 30px 30px 30px 60px">
@@ -59,10 +59,11 @@
                     {% for employee in employees %}
                     <div class="employee-card" onclick="showDetails('details{{ loop.index }}')">  
                         <h3 style="font-size: 24px; margin: 0px">{{ employee.name }}</h3>
+                        <p style="font-weight: 100; color: #1D1D1F">{{ employees_dict[employee] }}</p>
                         <div style="display: flex; flex-direction: row;">
                             <button class="button-add-employee" type="button">Read More</button>
                             <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
-                                <button class="button-delete-employee" type="submit">Delete employee</button>
+                                <button class="button-delete-employee" type="submit">Delete</button>
                             </form>
                         </div>
                         
@@ -95,7 +96,7 @@
             <h2>Projects</h2>
             <div class="box-add-project" style="margin-bottom: 20px;">
                 <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
-                    <p style="color: #000; font-weight: bold; margin-bottom: 10px; margin-top: 0;">Add Project Details here</p>
+                    <p style="color: #000; font-weight: 100px; margin-bottom: 10px; margin-top: 0;">Add Project Title and Description</p>
                     <div style="display: flex; align-items: center; padding: 10px;">
                         <textarea type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px; height: 40px"></textarea>
                         <textarea name="description" placeholder="Project Description" required style="flex-grow: 1; margin-right: 10px; padding: 10px;height: 40px"></textarea>
@@ -103,20 +104,29 @@
                     </div>
                 </form>
             </div>
+
+            
             
 
-            <ul class="dashboard-box">
+            
+
+            <div class="dashboard-box-2">
                 {% for project in projects %}
-                <div class="project-entry">  
-                    <h3>{{ project.title }}</h3>
-                    <p>Project description: {{ project.description }}</p>
-                    <p>The best employee for this job is: {{ project.best_employee_name}}</p>
+                <div class="employee-card">  
+                    <h3 style="margin: 0;font-size: 24px;">{{ project.title }}</h3>
+                    <div style="font-weight: bold; margin-top: 10px">Description:</div>
+                    <div>{{ project.description }}</div>
+                    <!-- <p>Description: {{ project.description }}</p> -->
+                    <div style="font-weight: bold; margin-top: 10px">Best Employee Match:</div>
+                    <div>{{ project.best_employee_name}}</div>
                     <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
                         <button class="button-delete-employee" type="submit">Delete project</button>
                     </form>
-                </div>  
+                </div>
                 {% endfor %}
-            </ul>
+            </div>
+
+            
             
         </div>
     </div>
