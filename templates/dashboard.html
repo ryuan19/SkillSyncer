@@ -53,9 +53,32 @@
                     </div>
                 </form>
             
+                <div id="popup-container" style="display:none;"></div>
+
+                <div class="dashboard-box-2">
+                    {% for employee in employees %}
+                    <div class="employee-card" onclick="showDetails('details{{ loop.index }}')">  
+                        <h3 style="font-size: 24px; margin: 0px">{{ employee.name }}</h3>
+                        <div style="display: flex; flex-direction: row;">
+                            <button class="button-add-employee" type="button">Read More</button>
+                            <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                                <button class="button-delete-employee" type="submit">Delete employee</button>
+                            </form>
+                        </div>
+                        
+                        <div id="details{{ loop.index }}" style="display: none;">
+                            <h3>{{ employee.name }}</h3>
+                            <p>Summary: {{ employee.summary }}</p>
+                            <p>Skills: {{ employee.skills }}</p>
+                            <p>Hobbies: {{ employee.hobbies }}</p>
+                            <p>Suitable Jobs: {{ employee.jobs }}</p>
+                        </div>
+                    </div>  
+                    {% endfor %}
+                </div>
             
             
-            <ul class="dashboard-box">
+            <!-- <ul class="dashboard-box">
                 {% for employee in employees %}
                 <div>  
                     <h3 style="font-size: 24px; margin: 0; margin-bottom: 10px; color:#000">{{ employee.name }}</h3>
@@ -68,7 +91,7 @@
                     </form>
                 </div>  
                 {% endfor %}
-            </ul>
+            </ul> -->
             <h2>Projects</h2>
             <div class="box-add-project" style="margin-bottom: 20px;">
                 <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
@@ -97,7 +120,18 @@
             
         </div>
     </div>
-    
+    <script>
+        function showDetails(detailId) {
+    var detailsHtml = document.getElementById(detailId).innerHTML;
+    var popupContent = `<div class="popup-content">${detailsHtml}<button class="button-add" onclick="closePopup()">Close</button></div>`;
+    document.getElementById('popup-container').innerHTML = popupContent;
+    document.getElementById('popup-container').style.display = 'flex';
+}
+
+function closePopup() {
+    document.getElementById('popup-container').style.display = 'none';
+}
+    </script>
     
 </body>
 </html>
