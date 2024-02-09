@@ -40,6 +40,7 @@ def summarize_resume(resume_text):
     model = GPT4QAModel()
     response = model.answer_question(prompt)
     response = json.loads(response)
+
     name = str(response['name'])
     summary = str(response['summary'])
     skills = str(response['skills'])

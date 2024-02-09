@@ -33,7 +33,7 @@ def match_resumes_with_projects(resumes, project_descriptions):
     prompt = allResumes + allProjects + "\nBased on these resumes and project descriptions, match each person to the best suited project."
     response = model.answer_question(prompt)
     print(prompt)
-    print("ligma")
+
     #response = json.loads(response)
     return response
 
