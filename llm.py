@@ -26,7 +26,7 @@ class GPT4QAModel():
           temperature=0
         )
 
-        return response["choices"][0]['message']['content'].strip()
+        return response.choices[0].message.content
 
 
     @retry(wait=wait_random_exponential(min=1, max=40), stop=stop_after_attempt(6))
