@@ -26,6 +26,7 @@ class GPT4QAModel():
           temperature=0
         )
 
+
         return response.choices[0].message.content
 
 
