@@ -22,17 +22,17 @@ def get_project_embedding(project):
   if project:
     proj_embedding = np.fromstring(project.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
     return proj_embedding
-  return None   
-      
+  return None
+
+
+
 def get_embedding_from_resume(resume_text):
-  # resume_instruction = [["Represent the employee resume document for retrieving suitable projects: ",resume_text]]
-  resume_instruction = [["This is an employee's resume. I want to use this to assign them to suitable projects that they specialize in or have experience in. Here is the resume: ",resume_text]]
+  resume_instruction = [["Represent the employee resume document for retrieving suitable projects: ",resume_text]]
   embedding_resume = myModel.encode(resume_instruction)
   return embedding_resume[0]
 
 def get_embedding_from_project(project_text):
-  # project_instruction = [["Represent the project description for retrieval: ", project_text]]
-  project_instruction = [["This is a project my company is planning to work on. Represent this project description in a way which categorizes the skills required for it: ", project_text]]
+  project_instruction = [["Represent the project description for retrieval: ", project_text]]
   embedding_project = myModel.encode(project_instruction)
   return embedding_project[0]
 
