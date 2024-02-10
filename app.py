@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import numpy as np
+from llm import GPT4QAModel
 
 app = Flask(__name__)
 
@@ -21,14 +22,14 @@ class User(db.Model):
 class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100))  
-    summary = db.Column(db.Text, nullable=False) 
-    skills = db.Column(db.Text, nullable=False)  
+    name = db.Column(db.String(100))
+    summary = db.Column(db.Text, nullable=False)
+    skills = db.Column(db.Text, nullable=False)
     hobbies = db.Column(db.Text, nullable=False)
     jobs = db.Column(db.Text, nullable=False)
-    embedding = db.Column(db.String(15000)) 
+    embedding = db.Column(db.String(15000))
     user = db.relationship('User', backref=db.backref('employees', lazy=True))
-    
+
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +38,7 @@ class Project(db.Model):
     description = db.Column(db.Text, nullable=False)
     embedding = db.Column(db.String(15000))
     best_employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
-    best_employee_name = db.Column(db.String(100)) 
+    best_employee_name = db.Column(db.String(100))
     user = db.relationship('User', backref=db.backref('projects', lazy=True))
 
 # Function to initialize the database
@@ -171,7 +172,7 @@ def delete_employee(employee_id):
 def get_best_employee_id_name_for_project(embedding):
   best_similarity = -1
   best_employee= None
-  
+
   #project = Project.query.get(project_id)
   for employee in Employee.query.all():
     employee_embedding = get_employee_embedding(employee)
@@ -182,6 +183,42 @@ def get_best_employee_id_name_for_project(embedding):
             best_employee= employee
   return best_employee.id, best_employee.name
 
+def makeEmployeePrompt(employee):
+    temp1 = "Name: " + employee.name
+    temp2 = "\nID: " + str(employee.id)
+    temp3 = "\nUser ID: " + str(employee.user_id)
+    temp4 = "\nSummary: " + employee.summary
+    temp5= "\nHobbies: " + ", ".join(employee.hobbies)
+    temp6 = "\nJobs: " + ", ".join(employee.jobs)
+    temp7 = "\Skills: " + ", ".join(employee.skills)
+    return temp1+temp2+temp3+temp4+temp5+temp6 +temp7
+
+def llm_get_best_employee_id_name_for_project(new_project):
+    model = GPT4QAModel()
+    best_employee = None
+    first = True
+    for employee in Employee.query.all():
+        if first: #set best employee to first one
+            best_employee = employee
+            first = False
+        else:
+            best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(best_employee) + "\n\n"
+            curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ makeEmployeePrompt(employee) + "\n\n"
+            prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
+            proj_prompt = "Here is some information about the project:\nProject Title: "+new_project.title + "\nProject Description: "+new_project.description + "\n\n"
+            end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
+
+
+            fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
+
+            res = model.answer_question(fullprompt)
+            print(employee.name, "Is this guy better?:", res)
+            if "yes" in res.lower(): #replace
+                print("inhere\n")
+                best_employee = employee
+
+    return best_employee
+
 
 @app.route('/add_project', methods=['POST'])
 def add_project():
@@ -189,19 +226,18 @@ def add_project():
         user = User.query.filter_by(username=session['username']).first()
         title = request.form.get('title')
         description = request.form.get('description')
-        embedding = get_embedding_from_project(description)
-        strembedding = np.array2string(embedding)
-        new_project = Project(user_id=user.id, title=title, description=description, embedding=strembedding)
-        new_best_employee_id, new_best_employee_name = get_best_employee_id_name_for_project(embedding)
+        #embedding = get_embedding_from_project(description)
+        #strembedding = np.array2string(embedding)
+        new_project = Project(user_id=user.id, title=title, description=description) #embedding=strembedding)
+        best_employee = llm_get_best_employee_id_name_for_project(new_project)
+        new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
         new_project.best_employee_id = new_best_employee_id
         new_project.best_employee_name = new_best_employee_name
-        print(new_best_employee_id)
-        print(new_best_employee_name)
         db.session.add(new_project)
 
         db.session.commit()
 
-        
+
         flash('Project added successfully')
         return redirect(url_for('dashboard'))
     else:
