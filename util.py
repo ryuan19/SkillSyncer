@@ -10,7 +10,7 @@ from PyPDF2.errors import PdfReadError
 from InstructorEmbedding import INSTRUCTOR
 
 
-# myModel = INSTRUCTOR('hkunlp/instructor-xl')
+myModel = INSTRUCTOR('hkunlp/instructor-xl')
 
 
 def get_employee_embedding(employee):
