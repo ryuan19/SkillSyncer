@@ -5,7 +5,7 @@ import os
 
 GPT3 = "gpt-3.5-turbo"
 GPT4 = "gpt-4"
-GPT4_turbo = 'gpt-4-1106-preview'
+GPT4_turbo = 'gpt-4-0125-preview'
 
 class GPT4QAModel():
     def __init__(self, model=GPT4):
@@ -26,7 +26,7 @@ class GPT4QAModel():
           temperature=0
         )
 
-        
+
         return response.choices[0].message.content
 
 
