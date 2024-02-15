@@ -77,8 +77,6 @@ def summarize_resume(resume_text):
 
 
 
-
-
 def main():
     prompt = "Hello, world!"
     model = GPT4QAModel()
