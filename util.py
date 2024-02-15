@@ -84,12 +84,6 @@ def main():
     model = GPT4QAModel()
     response = model.answer_question(prompt)
     print(f"response: {response}")
-    
-
-    
-
-    
-
     # pass
 
 if __name__ == "__main__":
