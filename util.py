@@ -9,7 +9,8 @@ from tqdm import tqdm
 from PyPDF2.errors import PdfReadError
 from InstructorEmbedding import INSTRUCTOR
 
-myModel = INSTRUCTOR('hkunlp/instructor-xl')
+
+# myModel = INSTRUCTOR('hkunlp/instructor-xl')
 
 
 def get_employee_embedding(employee):
@@ -74,8 +75,22 @@ def summarize_resume(resume_text):
     jobs = str(response['jobs'])
     return name, summary, skills, hobbies, jobs
 
+
+
+
+
 def main():
-    pass
+    prompt = "Hello, world!"
+    model = GPT4QAModel()
+    response = model.answer_question(prompt)
+    print(f"response: {response}")
+    
+
+    
+
+    
+
+    # pass
 
 if __name__ == "__main__":
     main()
