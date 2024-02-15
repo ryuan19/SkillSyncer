@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from util import extract_text_from_pdf, allowed_file, summarize_resume, get_embedding_from_resume, get_embedding_from_project, get_employee_embedding, cos_similarity
+from llm import GPT4QAModel
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -121,6 +122,7 @@ def dashboard():
         return redirect(url_for('login'))
 
 def update_best_employees(employee):
+    model = GPT4QAModel()
     if 'username' in session:
         user = User.query.filter_by(username=session['username']).first()
         if len(user.employees) == 1:
@@ -132,11 +134,22 @@ def update_best_employees(employee):
             for project in user.projects:
                 project_embedding = np.fromstring(project.embedding[1:-1], sep=' ')
                 curr_best_employee = Employee.query.get(project.best_employee_id)
-                curr_best_employee_embedding = np.fromstring(curr_best_employee.embedding[1:-1], sep=' ')
-                employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')
-                if cos_similarity(employee_embedding, project_embedding) > cos_similarity(curr_best_employee_embedding, project_embedding):
+                best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(curr_best_employee) + "\n\n"
+                curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ makeEmployeePrompt(employee) + "\n\n"
+                prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
+                proj_prompt = "Here is some information about the project:\nProject Title: "+project.title + "\nProject Description: "+project.description + "\n\n"
+                end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
+                
+                fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
+
+                res = model.answer_question(fullprompt)
+                print(employee.name, "Is this guy better?:", res)
+                if "yes" in res.lower(): #replace
+                    print("inhere\n")
                     project.best_employee_id = employee.id
                     project.best_employee_name = employee.name
+                
+                
         db.session.commit()
     else:
         flash('User not logged in')
@@ -202,6 +215,67 @@ def get_best_employee_id_name_for_project(embedding):
     flash('User not logged in')
     return redirect(url_for('login'))
 
+def get_5_best_employees_for_project(embedding):
+  best_similarity = -1
+  best_employee= None
+  if 'username' in session:
+    user = User.query.filter_by(username=session['username']).first()
+    #project = Project.query.get(project_id)
+    similarity_scores = []
+    for employee in user.employees:
+        employee_embedding = get_employee_embedding(employee)
+        if employee_embedding is not None:
+            similarity = cos_similarity(embedding, employee_embedding)
+            print(employee.name, f'{similarity=}')
+            similarity_scores.append((employee, similarity))
+            similarity_scores.sort(key=lambda x: x[1], reverse=True)
+            similarity_scores = similarity_scores[:5]
+    best_employees = []
+    for item in similarity_scores:
+        best_employees.append(item[0])
+
+    return best_employees
+  else:
+    flash('User not logged in')
+    return redirect(url_for('login'))
+
+
+def makeEmployeePrompt(employee):
+    temp1 = "Name: " + employee.name
+    temp2 = "\nID: " + str(employee.id)
+    temp3 = "\nUser ID: " + str(employee.user_id)
+    temp4 = "\nSummary: " + employee.summary
+    temp5= "\nHobbies: " + ", ".join(employee.hobbies)
+    temp6 = "\nJobs: " + ", ".join(employee.jobs)
+    temp7 = "\Skills: " + ", ".join(employee.skills)
+    return temp1+temp2+temp3+temp4+temp5+temp6 +temp7
+
+
+def llm_get_best_employee_id_name_for_project(best_employees, new_project):
+    model = GPT4QAModel()
+    best_employee = None
+    first = True
+    for employee in best_employees:
+        if first: #set best employee to first one
+            best_employee = employee
+            first = False
+        else:
+            best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(best_employee) + "\n\n"
+            curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ makeEmployeePrompt(employee) + "\n\n"
+            prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
+            proj_prompt = "Here is some information about the project:\nProject Title: "+new_project.title + "\nProject Description: "+new_project.description + "\n\n"
+            end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
+
+
+            fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
+
+            res = model.answer_question(fullprompt)
+            print(employee.name, "Is this guy better?:", res)
+            if "yes" in res.lower(): #replace
+                print("inhere\n")
+                best_employee = employee
+
+    return best_employee
 
 @app.route('/add_project', methods=['POST'])
 def add_project():
@@ -212,8 +286,10 @@ def add_project():
         embedding = get_embedding_from_project(description)
         strembedding = np.array2string(embedding)
         new_project = Project(user_id=user.id, title=title, description=description, embedding=strembedding)
+        best_employees = get_5_best_employees_for_project(embedding)
         if len(user.employees) > 0:
-            new_best_employee_id, new_best_employee_name = get_best_employee_id_name_for_project(embedding)
+            best_employee = llm_get_best_employee_id_name_for_project(best_employees, new_project)
+            new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
             new_project.best_employee_id = new_best_employee_id
             new_project.best_employee_name = new_best_employee_name
         #print(new_best_employee_id)
