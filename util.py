@@ -75,7 +75,11 @@ def summarize_resume(resume_text):
     return name, summary, skills, hobbies, jobs
 
 def main():
-    pass
+    # prompt = "Hello World"
+    # model = GPT4QAModel()
+    # response = model.answer_question(prompt)
+    # print(f"response: {response}")
+   pass
 
 if __name__ == "__main__":
     main()
