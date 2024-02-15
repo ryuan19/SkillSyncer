@@ -40,8 +40,10 @@ def get_personal_data(text) -> dict:
     for linkedin, the key should be linkedin, for other, the key should be other. Here is the data: {resume_identity}
     """
     model = GPT4QAModel()
-    response = eval(model.answer_question(prompt))
-    return response
+    response = model.answer_question(prompt)
+    print(response)
+    data_dict = eval(response)
+    return data_dict
 
 def mask_resume(resume, original_data, new_data):
     return resume.replace(original_data, new_data)
