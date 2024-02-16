@@ -29,3 +29,9 @@ What I aim to do for next sprint: Incorporate data masking, finalize on matching
 2. Arvind Saligrama
 What I did: Wrote algorithm that updates best employee for each project whenever you upload a new employee. Integrated brute force algorithm with current embeddindgs algorithm. Did a user interview
 What I aim to do for next sprint: Work on getting better embeddings. Specifically, a chunking algorithm that assigns weights to different experiences on the resume.
+
+3. Roy Yuan
+What I did: finished brute force algorithm for employee matching for each project whenever you upload a new employee, integrated the brute force algorithm with the existing frontend, did a few user interviews, scraped (legally) additional resumes to test our product on
+What I aim to do for next sprint: help teammates with whatever they need, work on encryption, finalize algorithm for employee matching
+
+
