@@ -19,3 +19,10 @@ What I aim to do for next sprint: Try and improve matching/embedding models. Wor
 3. Roy Yuan
 What I did: did brute force method for matching, collected resumes, prompting, brainstorm encryption and algorithm
 What I aim to do for next sprint: Integrate better brute force method with app, more backend, work on encryption
+
+
+## Sprint 2
+1. Krrish Chawla
+2. Arvind Saligrama
+What I did: Wrote algorithm that updates best employee for each project whenever you upload a new employee. Integrated brute force algorithm with current embeddindgs algorithm. Did a user interview
+What I aim to do for next sprint: Work on getting better embeddings. Specifically, a chunking algorithm that assigns weights to different experiences on the resume.
