@@ -108,6 +108,13 @@
             
             <div class="dashboard-box-2">
                 {% for project in projects %}
+
+                <div class="project-entry">
+                    <h3>{{ project.title }}</h3>
+                    <p>Project description: {{ project.description }}</p>
+                    <p>The best employee for this job is: {{ project.best_employee_name}}</p>
+                    <p>{{ project.best_employee_name}} is the best employee for this job because: {{ project.best_employee_reason}}</p>
+
                 <div class="employee-card">  
                     <h3 style="margin: 0;font-size: 24px;">{{ project.title }}</h3>
                     <div style="font-weight: bold; margin-top: 10px">Description:</div>
@@ -115,6 +122,7 @@
                     <!-- <p>Description: {{ project.description }}</p> -->
                     <div style="font-weight: bold; margin-top: 10px">Best Employee Match:</div>
                     <div>{{ project.best_employee_name}}</div>
+
                     <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
                         <button class="button-delete-employee" type="submit">Delete project</button>
                     </form>

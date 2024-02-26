@@ -78,11 +78,20 @@ def summarize_resume(resume_text):
 
 
 def main():
+
+    # prompt = "Hello, world!"
+    # model = GPT4QAModel()
+    # response = model.answer_question(prompt)
+    # print(f"response: {response}")
+    pass
+
     prompt = "Hello, world!"
     model = GPT4QAModel()
     response = model.answer_question(prompt)
     print(f"response: {response}")
     # pass
+
+
 
 if __name__ == "__main__":
     main()
