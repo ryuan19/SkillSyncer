@@ -1,4 +1,4 @@
-import openai
+
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 import os

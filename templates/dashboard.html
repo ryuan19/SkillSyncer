@@ -89,6 +89,7 @@
                     <h3>{{ project.title }}</h3>
                     <p>Project description: {{ project.description }}</p>
                     <p>The best employee for this job is: {{ project.best_employee_name}}</p>
+                    <p>{{ project.best_employee_name}} is the best employee for this job because: {{ project.best_employee_reason}}</p>
                     <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
                         <button class="button-delete-employee" type="submit">Delete Project</button>
                     </form>

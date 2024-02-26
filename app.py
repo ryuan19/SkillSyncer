@@ -39,7 +39,11 @@ class Project(db.Model):
     embedding = db.Column(db.String(15000))
     best_employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
     best_employee_name = db.Column(db.String(100))
+    best_employee_reason = db.Column(db.Text, nullable=False)
+
     user = db.relationship('User', backref=db.backref('projects', lazy=True))
+
+
 
 # Function to initialize the database
 def initialize_db():
@@ -128,7 +132,38 @@ def update_best_employees(employee):
             project.best_employee_id = employee.id
             project.best_employee_name = employee.name
 
+def update_best_employees_llm_actuallyupdate(currguy, newguy, proj):
+    model = GPT4QAModel()
+    best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(currguy) + "\n\n"
+    curr_employee_info = makeEmployeePrompt(newguy) #is actually the new guy
+    curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ curr_employee_info + "\n\n"
+    prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
+    proj_prompt = "Here is some information about the project:\nProject Title: "+proj.title + "\nProject Description: "+proj.description + "\n\n"
+    end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
 
+    fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
+    res = model.answer_question(fullprompt)
+    print("starthere2")
+    print(fullprompt)
+    printstr = "update_best_employees_llm_actuallyupdate : " + res
+    print(printstr)
+    if "yes" in res.lower(): #replace
+        print("update replace\n")
+        replace_prompt = best_employee_prompt + "Now, here is information about " + newguy.name + " who is a better candidate: \n" + curr_employee_info
+        replace_prompt += proj_prompt
+        replace_prompt += "\n Why is " + newguy.name + " the best suited candidate to this project? Respond in one to two sentences why " + newguy.name + "is the best candidate for this job."
+        reason = model.answer_question(replace_prompt)
+        proj.best_employee_id = newguy.id
+        proj.best_employee_name = newguy.name
+        proj.best_employee_reason = reason
+        db.session.commit() #update the reason
+
+
+def update_best_employees_llm(new_employee):
+    print("batman")
+    for project in Project.query.all():
+        curr_best_employee = Employee.query.get(project.best_employee_id) #guy must be in database
+        update_best_employees_llm_actuallyupdate(curr_best_employee,new_employee, project)
 
 
 
@@ -145,7 +180,7 @@ def add_employee():
             new_employee = Employee(user_id=user.id, name=name, summary=summary, embedding = strembedding, skills=skills, hobbies=hobbies, jobs=jobs)
             db.session.add(new_employee)
             db.session.commit()
-            update_best_employees(new_employee)
+            update_best_employees_llm(new_employee) #needa look into projects here
             flash('Employee added successfully')
         else:
             flash('Invalid file format or no file uploaded')
@@ -188,36 +223,44 @@ def makeEmployeePrompt(employee):
     temp2 = "\nID: " + str(employee.id)
     temp3 = "\nUser ID: " + str(employee.user_id)
     temp4 = "\nSummary: " + employee.summary
-    temp5= "\nHobbies: " + ", ".join(employee.hobbies)
-    temp6 = "\nJobs: " + ", ".join(employee.jobs)
-    temp7 = "\Skills: " + ", ".join(employee.skills)
+    temp5= "\nHobbies: " + employee.hobbies
+    temp6 = "\nJobs: " +  employee.jobs
+    temp7 = "\nSkills: " + employee.skills
     return temp1+temp2+temp3+temp4+temp5+temp6 +temp7
 
 def llm_get_best_employee_id_name_for_project(new_project):
     model = GPT4QAModel()
     best_employee = None
     first = True
+    reason = ""
     for employee in Employee.query.all():
         if first: #set best employee to first one
             best_employee = employee
             first = False
+            best_employee_prompt = "Here is some information about the employee in this role: \n" + makeEmployeePrompt(best_employee) + "\n\n"
+            best_employee_prompt += "Why is this person suited for the role? Answer in one to two sentences."
+            reason = model.answer_question(best_employee_prompt)
         else:
             best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(best_employee) + "\n\n"
-            curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ makeEmployeePrompt(employee) + "\n\n"
+            curr_employee_info = makeEmployeePrompt(employee)
+            curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ curr_employee_info + "\n\n"
             prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
             proj_prompt = "Here is some information about the project:\nProject Title: "+new_project.title + "\nProject Description: "+new_project.description + "\n\n"
             end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
 
-
             fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
 
             res = model.answer_question(fullprompt)
-            print(employee.name, "Is this guy better?:", res)
+            print(employee.name, "Is this person better?:", res)
             if "yes" in res.lower(): #replace
                 print("inhere\n")
                 best_employee = employee
+                replace_prompt = "Now, here is information about " + employee.name + " who is a better candidate: \n" + curr_employee_info
+                replace_prompt += proj_prompt
+                replace_prompt += "\n Why is " + employee.name + " the best suited candidate to this project? Respond in one to two sentences why " + employee.name + "is the best candidate for this job."
+                reason = model.answer_question(replace_prompt)
 
-    return best_employee
+    return best_employee, reason
 
 
 @app.route('/add_project', methods=['POST'])
@@ -228,15 +271,18 @@ def add_project():
         description = request.form.get('description')
         #embedding = get_embedding_from_project(description)
         #strembedding = np.array2string(embedding)
+
         new_project = Project(user_id=user.id, title=title, description=description) #embedding=strembedding)
-        best_employee = llm_get_best_employee_id_name_for_project(new_project)
+        best_employee, reason = llm_get_best_employee_id_name_for_project(new_project)
+
+        new_project.best_employee_reason=reason
+
         new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
         new_project.best_employee_id = new_best_employee_id
         new_project.best_employee_name = new_best_employee_name
         db.session.add(new_project)
 
         db.session.commit()
-
 
         flash('Project added successfully')
         return redirect(url_for('dashboard'))
@@ -259,8 +305,6 @@ def delete_project(project_id):
         flash('Project not found')
 
     return redirect(url_for('dashboard'))
-
-
 
 
 if __name__ == '__main__':
