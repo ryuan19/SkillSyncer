@@ -147,14 +147,11 @@ def update_best_employees(employee):
                 if "yes" in res.lower(): #replace
                     print("inhere\n")
                     project.best_employee_id = employee.id
-                    project.best_employee_name = employee.name
-                
-                
+                    project.best_employee_name = employee.name   
         db.session.commit()
     else:
         flash('User not logged in')
         return redirect(url_for('login'))
-
 
 
 
@@ -263,7 +260,7 @@ def llm_get_best_employee_id_name_for_project(best_employees, new_project):
             best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(best_employee) + "\n\n"
             curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ makeEmployeePrompt(employee) + "\n\n"
             prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
-            proj_prompt = "Here is some information about the project:\nProject Title: "+new_project.title + "\nProject Description: "+new_project.description + "\n\n"
+            proj_prompt = "Here is some information about the project:\nProject Title: " + new_project.title + "\nProject Description: "+new_project.description + "\n\n"
             end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
 
 
