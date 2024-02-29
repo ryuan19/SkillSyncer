@@ -9,7 +9,7 @@ from models import db, User, Employee, Project
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.secret_key = 'your_secret_key'
+app.secret_key = 'OPENAI_API_KEY'
 db.init_app(app)
 
 
