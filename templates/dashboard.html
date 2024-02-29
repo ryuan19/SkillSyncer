@@ -62,9 +62,16 @@
                         <p style="font-weight: 100; color: #1D1D1F">{{ employees_dict[employee] }}</p>
                         <div style="display: flex; flex-direction: row;">
                             <button class="button-add-employee" type="button">Read More</button>
-                            <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                            <!-- <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
                                 <button class="button-delete-employee" type="submit">Delete</button>
-                            </form>
+                            </form> -->
+                            <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                                <button class="button-delete-employee" type="button" 
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                  Delete
+                                </button>
+                             </form>
+
                         </div>
                         
                         <div id="details{{ loop.index }}" style="display: none;">
@@ -101,9 +108,18 @@
                     <!-- Trigger Button -->
                     <div style="display: flex; flex-direction: row;">
                         <button class="button-add-employee" type="button" onclick="showDetails('projectDetails{{ loop.index }}')">Read More</button>
-                        <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                        <!-- <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
                             <button class="button-delete-employee" type="submit">Delete project</button>
-                        </form>
+                        </form> -->
+                        <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                            <button class="button-delete-employee" type="button" 
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                              Delete
+                            </button>
+                         </form>
+                         
+
+                        
                     </div>
                     
                     
@@ -125,7 +141,17 @@
         </div>
     </div>
     <script>
-        function showDetails(detailId) {
+//         function showDetails(detailId) {
+//     var detailsHtml = document.getElementById(detailId).innerHTML;
+//     var popupContent = `<div class="popup-content">${detailsHtml}<button class="button-add" onclick="closePopup()">Close</button></div>`;
+//     document.getElementById('popup-container').innerHTML = popupContent;
+//     document.getElementById('popup-container').style.display = 'flex';
+// }
+
+// function closePopup() {
+//     document.getElementById('popup-container').style.display = 'none';
+// }
+function showDetails(detailId) {
     var detailsHtml = document.getElementById(detailId).innerHTML;
     var popupContent = `<div class="popup-content">${detailsHtml}<button class="button-add" onclick="closePopup()">Close</button></div>`;
     document.getElementById('popup-container').innerHTML = popupContent;
