@@ -114,7 +114,10 @@ def dashboard():
         if user:
             employees = Employee.query.filter_by(user_id=user.id).all()
             projects = Project.query.filter_by(user_id=user.id).all()
-            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=employees, projects=projects)
+            employees_dict = {}
+            for employee in employees:
+                employees_dict[employee] = employee.jobs.strip("[]").split(',')[0].strip("'")
+            return render_template('dashboard.html', username=session['username'], date=formatted_date, employees=reversed(employees), projects=reversed(projects), employees_dict=employees_dict)
         else:
             flash('User not found')
             return redirect(url_for('login'))
