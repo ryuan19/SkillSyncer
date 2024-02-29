@@ -5,6 +5,7 @@ from datetime import datetime
 import numpy as np
 from llm import GPT4QAModel
 from models import db, User, Employee, Project
+from masking import secure_resume
 
 app = Flask(__name__)
 
@@ -101,6 +102,8 @@ def add_employee():
         resume_file = request.files.get('resume')
         if resume_file and allowed_file(resume_file.filename):
             resume_text = extract_text_from_pdf(resume_file)
+            # Remove personal details
+            resume_text = secure_resume(resume_text)
             name, summary, skills, hobbies, jobs = summarize_resume(resume_text)
             embedding = get_embedding_from_resume(resume_text)
             strembedding = np.array2string(embedding)

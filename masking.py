@@ -37,7 +37,8 @@ def get_personal_data(text) -> dict:
     value being the data itself. For example, if there is a name, the key-value pair in the
     dictionary should be name : 'given full name'. For name, the key should be name, for email
     the key should be email, for phone number, the key should be number, for website, the key should be website, 
-    for linkedin, the key should be linkedin, for other, the key should be other. Here is the data: {resume_identity}
+    for linkedin, the key should be linkedin, github should be github, and that's it. The values of the keys should only be strings and only strings.
+    Here is the data: {resume_identity}
     """
     model = GPT4QAModel()
     response = model.answer_question(prompt)
@@ -51,9 +52,7 @@ def mask_resume(resume, original_data, new_data):
 def demask_resume(resume, original_data, new_data):
     return resume.replace(new_data, original_data)
 
-def main():
-    pdf = './resume.pdf'
-    resume = extract_text_from_pdf(pdf)
+def secure_resume(resume):
     personal_data = get_personal_data(resume)
     print(personal_data)
     
@@ -63,19 +62,20 @@ def main():
     masked_resume = resume
     for key, value in personal_data.items():
         if key == 'name':
-            random_name = generate_random_name()
-            name_mapping[value] = random_name  # Store the mapping
-            masked_resume = mask_resume(masked_resume, value, random_name)
+            # random_name = generate_random_name()
+            # name_mapping[value] = random_name  # Store the mapping
+            # masked_resume = mask_resume(masked_resume, value, random_name)
+            continue
         else:
             masked_resume = mask_resume(masked_resume, value, str(key))
-    
-    print(masked_resume)
+    return masked_resume
+    # print(masked_resume)
     
     # Print the name mapping
-    print("Name Mapping:")
-    for real_name, fake_name in name_mapping.items():
-        print(f"{real_name} -> {fake_name}")
+    # print("Name Mapping:")
+    # for real_name, fake_name in name_mapping.items():
+    #     print(f"{real_name} -> {fake_name}")
 
 
 if __name__ == '__main__':
-    main()
+    pass
