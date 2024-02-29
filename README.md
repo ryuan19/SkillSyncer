@@ -34,4 +34,15 @@ What I aim to do for next sprint: Work on getting better embeddings. Specificall
 What I did: finished brute force algorithm for employee matching for each project whenever you upload a new employee, integrated the brute force algorithm with the existing frontend, did a few user interviews, scraped (legally) additional resumes to test our product on
 What I aim to do for next sprint: help teammates with whatever they need, work on encryption, finalize algorithm for employee matching
 
+## Sprint 3
+1. Krrish Chawla
+What I did: Incorporated data masking with the app, strategized on resume chunking, did error handling in the app, front end (LLM reasoning on dashboard), code clean.
+What I aim to do for next sprint: Further test data masking, work on LLM prompt optimization with DSPy to get best results, more error handling - making the app industry scalable.
 
+2. Arvind Saligrama
+What I did: 
+What I aim to do for next sprint: 
+
+3. Roy Yuan
+What I did: 
+What I aim to do for next sprint: 
