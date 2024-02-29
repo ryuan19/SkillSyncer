@@ -78,21 +78,7 @@
                     {% endfor %}
                 </div>
             
-            
-            <!-- <ul class="dashboard-box">
-                {% for employee in employees %}
-                <div>  
-                    <h3 style="font-size: 24px; margin: 0; margin-bottom: 10px; color:#000">{{ employee.name }}</h3>
-                    <li>Summary : {{ employee.summary }}</li>
-                    <li>Skills : {{ employee.skills }}</li>
-                    <li>Hobbies : {{ employee.hobbies }}</li>
-                    <li>Suitable Jobs : {{ employee.jobs }}</li>
-                    <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
-                        <button class="button-delete-employee" type="submit">Delete employee</button>
-                    </form>
-                </div>  
-                {% endfor %}
-            </ul> -->
+        
             <h2>Projects</h2>
             <div class="box-add-project" style="margin-bottom: 20px;">
                 <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
@@ -108,24 +94,28 @@
             
             <div class="dashboard-box-2">
                 {% for project in projects %}
-
-                <div class="project-entry">
-                    <h3>{{ project.title }}</h3>
-                    <p>Project description: {{ project.description }}</p>
-                    <p>The best employee for this job is: {{ project.best_employee_name}}</p>
-                    <p>{{ project.best_employee_name}} is the best employee for this job because: {{ project.best_employee_reason}}</p>
-
                 <div class="employee-card">  
                     <h3 style="margin: 0;font-size: 24px;">{{ project.title }}</h3>
-                    <div style="font-weight: bold; margin-top: 10px">Description:</div>
-                    <div>{{ project.description }}</div>
-                    <!-- <p>Description: {{ project.description }}</p> -->
-                    <div style="font-weight: bold; margin-top: 10px">Best Employee Match:</div>
-                    <div>{{ project.best_employee_name}}</div>
+                    <p>Description: {{ project.description | safe }}</p>
+                    <p>Best Employee Match: {{ project.best_employee_name | safe }}</p>
+                    <!-- Trigger Button -->
+                    <div style="display: flex; flex-direction: row;">
+                        <button class="button-add-employee" type="button" onclick="showDetails('projectDetails{{ loop.index }}')">Read More</button>
+                        <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                            <button class="button-delete-employee" type="submit">Delete project</button>
+                        </form>
+                    </div>
+                    
+                    
+                    
 
-                    <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
-                        <button class="button-delete-employee" type="submit">Delete project</button>
-                    </form>
+                    <!-- Hidden Details Container -->
+                    <div id="projectDetails{{ loop.index }}" style="display: none;">
+                        <h3>{{ project.title }}</h3>
+                        <p>Project description: {{ project.description }}</p>
+                        <p>The best employee for this job is: {{ project.best_employee_name }}</p>
+                        <p>{{ project.best_employee_name }} is the best employee for this job because: {{ project.best_employee_reason }}</p>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
