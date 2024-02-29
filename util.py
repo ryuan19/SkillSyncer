@@ -9,13 +9,17 @@ from tqdm import tqdm
 from PyPDF2.errors import PdfReadError
 from InstructorEmbedding import INSTRUCTOR
 from models import User, Employee, Project
+from openai import OpenAI
+import ast
 # from app import db
 
 
 
 
 myModel = INSTRUCTOR('hkunlp/instructor-xl')
-
+client = OpenAI(
+            api_key = os.environ.get('OPENAI_API_KEY')
+        )
 
 def get_employee_embedding(employee):
   if employee:
@@ -29,7 +33,33 @@ def get_project_embedding(project):
     return proj_embedding
   return None
 
+def get_embedding_list(resume_text):
+  response = client.chat.completions.create(
+          model = "gpt-3.5-turbo",
+          messages=[
+                {"role": "system", "content": "You are an expert at resume parsing"},
+                {"role": "user", "content": f"You are an expert at parsing resumes. I want you to take the following resume text and divide it into no more than 10 chunks.It is okay to have less than 10, but not more. I want each event in the person's life to be its own chunk, whether it is a project or a job experience. Don't include the name and contact information. Make sure different job experiences and different projects are different chunks, even if they are under the same section. Please make the output a python list, where each element of the list is a string consisting of the text corresponding to the relevant chunk. Make the output a python list that I can readily use in my code. There should not be any text in the output other than this python list. Here is an example of the output I want: ['Experience 1...', 'Experience 2...', 'Experience 3...', etc...]. Here is the resume text: {resume_text}"}
+            ],
+          temperature=0)
+  wanted_list = response.choices[0].message.content
+  wanted_list = ast.literal_eval(wanted_list)
 
+  emb_list = []
+  for experience in wanted_list:
+    exp_embedding = get_embedding_from_resume(experience)
+    emb_list.append(exp_embedding)
+  return emb_list
+
+def similarity_metric(resume_embeddings, project_embedding):
+  similarity_values = []
+  for exp_emb in resume_embeddings:
+    similarity_values.append(cos_similarity(exp_emb, project_embedding))
+  sorted_sums = sorted(similarity_values, reverse=True)
+
+  largest1 = sorted_sums[0]
+  largest2 = sorted_sums[1]
+
+  return largest1 + largest2
 
 def get_embedding_from_resume(resume_text):
   resume_instruction = [["Represent the employee resume document for retrieving suitable projects: ",resume_text]]
