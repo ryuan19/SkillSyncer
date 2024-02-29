@@ -9,6 +9,8 @@ from tqdm import tqdm
 from PyPDF2.errors import PdfReadError
 from InstructorEmbedding import INSTRUCTOR
 from models import User, Employee, Project
+# from app import db
+
 
 
 
@@ -87,7 +89,7 @@ def update_best_employees(employee):
             project.best_employee_id = employee.id
             project.best_employee_name = employee.name
 
-def update_best_employees_llm_actuallyupdate(currguy, newguy, proj):
+def update_best_employees_llm_actuallyupdate(currguy, newguy, proj, db):
     model = GPT4QAModel()
     best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(currguy) + "\n\n"
     curr_employee_info = makeEmployeePrompt(newguy) #is actually the new guy
@@ -114,11 +116,12 @@ def update_best_employees_llm_actuallyupdate(currguy, newguy, proj):
         db.session.commit() #update the reason
 
 
-def update_best_employees_llm(new_employee):
+def update_best_employees_llm(new_employee, db):
     print("batman")
     for project in Project.query.all():
         curr_best_employee = Employee.query.get(project.best_employee_id) #guy must be in database
-        update_best_employees_llm_actuallyupdate(curr_best_employee,new_employee, project)
+        if curr_best_employee is not None:
+          update_best_employees_llm_actuallyupdate(curr_best_employee,new_employee, project, db)
 
 
 def get_best_employee_id_name_for_project(embedding):

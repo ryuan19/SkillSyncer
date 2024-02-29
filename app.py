@@ -107,7 +107,7 @@ def add_employee():
             new_employee = Employee(user_id=user.id, name=name, summary=summary, embedding = strembedding, skills=skills, hobbies=hobbies, jobs=jobs)
             db.session.add(new_employee)
             db.session.commit()
-            update_best_employees_llm(new_employee) #needa look into projects here
+            update_best_employees_llm(new_employee, db) #needa look into projects here
             flash('Employee added successfully')
         else:
             flash('Invalid file format or no file uploaded')
