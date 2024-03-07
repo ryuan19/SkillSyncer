@@ -21,9 +21,15 @@ client = OpenAI(
             api_key = os.environ.get('OPENAI_API_KEY')
         )
 
+def get_embedding(text, model="text-embedding-3-small"):
+    text = text.replace("\n", " ")
+    embedding = client.embeddings.create(input=[text], model=model).data[0].embedding
+    return embedding
+
 def get_employee_embedding(employee):
   if employee:
-    employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    #employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    employee_embedding = json.loads(employee.embedding_list)
     return employee_embedding
   return None
 
@@ -38,28 +44,58 @@ def get_embedding_list(resume_text):
           model = "gpt-3.5-turbo",
           messages=[
                 {"role": "system", "content": "You are an expert at resume parsing"},
-                {"role": "user", "content": f"You are an expert at parsing resumes. I want you to take the following resume text and divide it into no more than 10 chunks.It is okay to have less than 10, but not more. I want each event in the person's life to be its own chunk, whether it is a project or a job experience. Don't include the name and contact information. Make sure different job experiences and different projects are different chunks, even if they are under the same section. Please make the output a python list, where each element of the list is a string consisting of the text corresponding to the relevant chunk. Make the output a python list that I can readily use in my code. There should not be any text in the output other than this python list. Here is an example of the output I want: ['Experience 1...', 'Experience 2...', 'Experience 3...', etc...]. Here is the resume text: {resume_text}"}
+                {"role": "user", "content": f"You are an expert at parsing resumes. I want you to take the following resume text and divide it into no more than 10 chunks.It is okay to have less than 10, but not more. I want each event in the person's life to be its own chunk, whether it is a project or a job experience. Don't include the name and contact information. Make sure different job experiences and different projects are different chunks, even if they are under the same section. Please make the output a python list, where each element of the list is a string consisting of the text corresponding to the relevant chunk. Make the output a python list that I can readily use in my code. There should not be any text in the output other than this python list. Don't include '''python at the beginning of your output. Do not omit any part of the resume, make sure every line of the resume is included in a chunk. Here is an example of the output I want: ['Experience 1...', 'Experience 2...', 'Experience 3...', etc...]. Here is the resume text: {resume_text}"}
             ],
           temperature=0)
   wanted_list = response.choices[0].message.content
+  print(f"Output: {wanted_list}")
   wanted_list = ast.literal_eval(wanted_list)
 
   emb_list = []
   for experience in wanted_list:
-    exp_embedding = get_embedding_from_resume(experience)
+    exp_embedding = get_embedding(experience)
     emb_list.append(exp_embedding)
   return emb_list
+
+
+
+
+def get_5_best_employees_for_project(embedding, user):
+  best_similarity = -1
+  best_employee= None
+  
+  project_embedding_np = np.array(embedding)
+  
+  #project = Project.query.get(project_id)
+  similarity_scores = []
+  for employee in user.employees:
+      resume_embedding_list = get_employee_embedding(employee)
+      if resume_embedding_list is not None:
+          similarity = similarity_metric(resume_embedding_list, project_embedding_np)
+          print(similarity)
+          similarity_scores.append((employee, similarity))
+          similarity_scores.sort(key=lambda x: x[1], reverse=True)
+          similarity_scores = similarity_scores[:5]
+  best_employees = []
+  for item in similarity_scores:
+      best_employees.append(item[0])
+  print(best_employees)
+  print(similarity_scores)
+  return best_employees
+  
 
 def similarity_metric(resume_embeddings, project_embedding):
   similarity_values = []
   for exp_emb in resume_embeddings:
-    similarity_values.append(cos_similarity(exp_emb, project_embedding))
+    exp_emb_np = np.array(exp_emb)
+    similarity_values.append(cos_similarity(exp_emb_np, project_embedding))
   sorted_sums = sorted(similarity_values, reverse=True)
 
   largest1 = sorted_sums[0]
   largest2 = sorted_sums[1]
-
-  return largest1 + largest2
+  print(f"largest:{largest1}")
+  print(f"Second Largest: {largest2}")
+  return (2*largest1 + largest2)/3
 
 def get_embedding_from_resume(resume_text):
   resume_instruction = [["Represent the employee resume document for retrieving suitable projects: ",resume_text]]
@@ -109,7 +145,7 @@ def summarize_resume(resume_text):
     jobs = str(response['jobs'])
     return name, summary, skills, hobbies, jobs
 
-def update_best_employees(employee):
+def update_best_employees(employee, db):
     for project in Project.query.all():
         project_embedding = np.fromstring(project.embedding[1:-1], sep=' ')
         curr_best_employee = Employee.query.get(project.best_employee_id)
@@ -178,12 +214,13 @@ def makeEmployeePrompt(employee):
     temp7 = "\nSkills: " + employee.skills
     return temp1+temp2+temp3+temp4+temp5+temp6 +temp7
 
-def llm_get_best_employee_id_name_for_project(new_project):
+def llm_get_best_employee_id_name_for_project(best_employees, new_project):
     model = GPT4QAModel()
     best_employee = None
     first = True
     reason = ""
-    for employee in Employee.query.all():
+    #for employee in Employee.query.all():
+    for employee in best_employees:
         if first or best_employee is None: #set best employee to first one
             best_employee = employee
             first = False

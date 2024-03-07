@@ -16,7 +16,7 @@ class Employee(db.Model):
     skills = db.Column(db.Text, nullable=False)
     hobbies = db.Column(db.Text, nullable=False)
     jobs = db.Column(db.Text, nullable=False)
-    embedding = db.Column(db.String(15000))
+    embedding_list = db.Column(db.Text, nullable=False)
     user = db.relationship('User', backref=db.backref('employees', lazy=True))
 
 
@@ -25,7 +25,7 @@ class Project(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    embedding = db.Column(db.String(15000))
+    embedding_text = db.Column(db.Text, nullable=False)
     best_employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
     best_employee_name = db.Column(db.String(100))
     best_employee_reason = db.Column(db.Text, nullable=False)
