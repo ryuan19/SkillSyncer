@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from util import get_5_best_employees_for_project, extract_text_from_pdf, allowed_file, summarize_resume, get_embedding, get_embedding_list, get_embedding_from_resume, get_embedding_from_project, get_employee_embedding, cos_similarity, update_best_employees, update_best_employees_llm_actuallyupdate, update_best_employees_llm, get_best_employee_id_name_for_project, makeEmployeePrompt, llm_get_best_employee_id_name_for_project
+from util import get_5_best_employees_for_project, update_projects_best_employees, llm_best_out_of_5, extract_text_from_pdf, allowed_file, summarize_resume, get_embedding, get_embedding_list,  get_employee_embedding, cos_similarity
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import numpy as np
@@ -110,10 +110,10 @@ def add_employee():
             emb_list_text = json.dumps(emb_list)
             
 
-            new_employee = Employee(user_id=user.id, name=name, summary=summary, embedding_list = emb_list_text, skills=skills, hobbies=hobbies, jobs=jobs)
+            new_employee = Employee(user_id=user.id, name=name, resume_text=resume_text, summary=summary, embedding_list = emb_list_text, skills=skills, hobbies=hobbies, jobs=jobs)
             db.session.add(new_employee)
             db.session.commit()
-            update_best_employees_llm(new_employee, db) #needa look into projects here
+            update_projects_best_employees(new_employee, db) #needa look into projects here
             flash('Employee added successfully')
         else:
             flash('Invalid file format or no file uploaded')
@@ -150,13 +150,13 @@ def add_project():
         new_project = Project(user_id=user.id, title=title, description=description, embedding_text=embedding_text)
         best_employees = get_5_best_employees_for_project(embedding, user)
         if len(user.employees) > 0:
-            best_employee, reason = llm_get_best_employee_id_name_for_project(best_employees, new_project)
-
-            new_project.best_employee_reason=reason
+            #best_employee, reason = llm_get_best_employee_id_name_for_project(best_employees, new_project)
+            best_employee, reason = llm_best_out_of_5(best_employees, new_project)
 
             new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
             new_project.best_employee_id = new_best_employee_id
             new_project.best_employee_name = new_best_employee_name
+            new_project.best_employee_reason=reason
         db.session.add(new_project)
 
         db.session.commit()

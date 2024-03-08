@@ -12,6 +12,7 @@ class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100))
+    resume_text = db.Column(db.Text, nullable=False)
     summary = db.Column(db.Text, nullable=False)
     skills = db.Column(db.Text, nullable=False)
     hobbies = db.Column(db.Text, nullable=False)
