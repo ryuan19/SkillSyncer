@@ -11,25 +11,32 @@ from InstructorEmbedding import INSTRUCTOR
 from models import User, Employee, Project
 from openai import OpenAI
 import ast
-# from app import db
 
 
 
 
-myModel = INSTRUCTOR('hkunlp/instructor-xl')
+
+
 client = OpenAI(
             api_key = os.environ.get('OPENAI_API_KEY')
         )
 
+def get_embedding(text, model="text-embedding-3-small"):
+    text = text.replace("\n", " ")
+    embedding = client.embeddings.create(input=[text], model=model).data[0].embedding
+    return embedding
+
 def get_employee_embedding(employee):
   if employee:
-    employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    #employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    employee_embedding = json.loads(employee.embedding_list)
     return employee_embedding
   return None
 
 def get_project_embedding(project):
   if project:
-    proj_embedding = np.fromstring(project.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    #proj_embedding = np.fromstring(project.embedding[1:-1], sep=' ')  # Convert the string back to a NumPy array
+    proj_embedding = json.loads(project.embedding_text)
     return proj_embedding
   return None
 
@@ -38,38 +45,58 @@ def get_embedding_list(resume_text):
           model = "gpt-3.5-turbo",
           messages=[
                 {"role": "system", "content": "You are an expert at resume parsing"},
-                {"role": "user", "content": f"You are an expert at parsing resumes. I want you to take the following resume text and divide it into no more than 10 chunks.It is okay to have less than 10, but not more. I want each event in the person's life to be its own chunk, whether it is a project or a job experience. Don't include the name and contact information. Make sure different job experiences and different projects are different chunks, even if they are under the same section. Please make the output a python list, where each element of the list is a string consisting of the text corresponding to the relevant chunk. Make the output a python list that I can readily use in my code. There should not be any text in the output other than this python list. Here is an example of the output I want: ['Experience 1...', 'Experience 2...', 'Experience 3...', etc...]. Here is the resume text: {resume_text}"}
+                {"role": "user", "content": f"You are an expert at parsing resumes. I want you to take the following resume text and divide it into no more than 10 chunks.It is okay to have less than 10, but not more. I want each event in the person's life to be its own chunk, whether it is a project or a job experience. Don't include the name and contact information. Make sure different job experiences and different projects are different chunks, even if they are under the same section. Please make the output a python list, where each element of the list is a string consisting of the text corresponding to the relevant chunk. Make the output a python list that I can readily use in my code. There should not be any text in the output other than this python list. Don't include '''python at the beginning of your output. Do not omit any part of the resume, make sure every line of the resume is included in a chunk. Here is an example of the output I want: ['Experience 1...', 'Experience 2...', 'Experience 3...', etc...]. Here is the resume text: {resume_text}"}
             ],
           temperature=0)
   wanted_list = response.choices[0].message.content
+  print(f"Output: {wanted_list}")
   wanted_list = ast.literal_eval(wanted_list)
 
   emb_list = []
   for experience in wanted_list:
-    exp_embedding = get_embedding_from_resume(experience)
+    exp_embedding = get_embedding(experience)
     emb_list.append(exp_embedding)
   return emb_list
+
+
+
+
+def get_5_best_employees_for_project(embedding, user):
+  best_similarity = -1
+  best_employee= None
+  
+  project_embedding_np = np.array(embedding)
+  
+  #project = Project.query.get(project_id)
+  similarity_scores = []
+  for employee in user.employees:
+      resume_embedding_list = get_employee_embedding(employee)
+      if resume_embedding_list is not None:
+          similarity = similarity_metric(resume_embedding_list, project_embedding_np)
+          print(similarity)
+          similarity_scores.append((employee, similarity))
+          similarity_scores.sort(key=lambda x: x[1], reverse=True)
+          similarity_scores = similarity_scores[:5]
+  best_employees = []
+  for item in similarity_scores:
+      best_employees.append(item[0])
+  print(best_employees)
+  print(similarity_scores)
+  return best_employees
+  
 
 def similarity_metric(resume_embeddings, project_embedding):
   similarity_values = []
   for exp_emb in resume_embeddings:
-    similarity_values.append(cos_similarity(exp_emb, project_embedding))
+    exp_emb_np = np.array(exp_emb)
+    similarity_values.append(cos_similarity(exp_emb_np, project_embedding))
   sorted_sums = sorted(similarity_values, reverse=True)
 
   largest1 = sorted_sums[0]
   largest2 = sorted_sums[1]
-
-  return largest1 + largest2
-
-def get_embedding_from_resume(resume_text):
-  resume_instruction = [["Represent the employee resume document for retrieving suitable projects: ",resume_text]]
-  embedding_resume = myModel.encode(resume_instruction)
-  return embedding_resume[0]
-
-def get_embedding_from_project(project_text):
-  project_instruction = [["Represent the project description for retrieval: ", project_text]]
-  embedding_project = myModel.encode(project_instruction)
-  return embedding_project[0]
+  print(f"largest:{largest1}")
+  print(f"Second Largest: {largest2}")
+  return (2*largest1 + largest2)/3
 
 def cos_similarity(embedding_resume, embedding_project):
   similarity = np.dot(embedding_resume, embedding_project) / (np.linalg.norm(embedding_resume) * np.linalg.norm(embedding_project))
@@ -109,108 +136,59 @@ def summarize_resume(resume_text):
     jobs = str(response['jobs'])
     return name, summary, skills, hobbies, jobs
 
-def update_best_employees(employee):
-    for project in Project.query.all():
-        project_embedding = np.fromstring(project.embedding[1:-1], sep=' ')
-        curr_best_employee = Employee.query.get(project.best_employee_id)
-        curr_best_employee_embedding = np.fromstring(curr_best_employee.embedding[1:-1], sep=' ')
-        employee_embedding = np.fromstring(employee.embedding[1:-1], sep=' ')
-        if cos_similarity(employee_embedding, project_embedding) > cos_similarity(curr_best_employee_embedding, project_embedding):
-            project.best_employee_id = employee.id
-            project.best_employee_name = employee.name
-
-def update_best_employees_llm_actuallyupdate(currguy, newguy, proj, db):
-    model = GPT4QAModel()
-    best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(currguy) + "\n\n"
-    curr_employee_info = makeEmployeePrompt(newguy) #is actually the new guy
-    curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ curr_employee_info + "\n\n"
-    prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
-    proj_prompt = "Here is some information about the project:\nProject Title: "+proj.title + "\nProject Description: "+proj.description + "\n\n"
-    end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
-
-    fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
-    res = model.answer_question(fullprompt)
-    print("starthere2")
-    print(fullprompt)
-    printstr = "update_best_employees_llm_actuallyupdate : " + res
-    print(printstr)
-    if "yes" in res.lower(): #replace
-        print("update replace\n")
-        replace_prompt = best_employee_prompt + "Now, here is information about " + newguy.name + " who is a better candidate: \n" + curr_employee_info
-        replace_prompt += proj_prompt
-        replace_prompt += "\n Why is " + newguy.name + " the best suited candidate to this project? Respond in one to two sentences why " + newguy.name + "is the best candidate for this job."
-        reason = model.answer_question(replace_prompt)
-        proj.best_employee_id = newguy.id
-        proj.best_employee_name = newguy.name
-        proj.best_employee_reason = reason
-        db.session.commit() #update the reason
 
 
-def update_best_employees_llm(new_employee, db):
-    print("batman")
-    for project in Project.query.all():
-        curr_best_employee = Employee.query.get(project.best_employee_id) #guy must be in database
-        if curr_best_employee is not None:
-          update_best_employees_llm_actuallyupdate(curr_best_employee,new_employee, project, db)
+def get_reason(best_employee, project):
+  model = GPT4QAModel(model="gpt-3.5-turbo")
+  prompt = f'''You are an expert hiring manager. The title of the project you are hiring for is {project.title}, and its description is {project.description}.
+  Here is the resume of the person you have chosen for this project: {best_employee.resume_text}. In at most 3 sentences, tell me why this person is a good fit for the role.'''
+  reason = model.answer_question(prompt)
+  return reason
 
+def llm_best_out_of_5(best_employees, new_project):
+  model = GPT4QAModel()
+  curr_best_employee = best_employees[0]
+  print(f"Starting Best Employee: {curr_best_employee.name}")
+  for i in range(1, len(best_employees)):
+    curr_employee = best_employees[i]
+    print(f"Considering employee: {curr_employee.name}")
+    curr_best_employee_resume = curr_best_employee.resume_text
+    curr_resume =curr_employee.resume_text
 
-def get_best_employee_id_name_for_project(embedding):
-  best_similarity = -1
-  best_employee= None
+    prompt = f'''You are an expert hiring manager. The title of the project you are hiring for is {new_project.title}, and its description is {new_project.description}.
+    We have used an automated algorithm to find the top 5 most promising candidates for the role. Here is the resume of the employee that our automated algorithm thinks is best suited for the role: {curr_best_employee_resume}. Here is the resume of a new employee that you are considering:
+    {curr_resume}. Do you think this new employee is better suited for this project than the employee you currently think is best? Consider the experience, merits, and skills of the two employees. Objectively make a decision on who you think will do a better job on this project. Is the new employee better than the current best employee? Output either "Yes" or "No", nothing else.'''
+    res = model.answer_question(prompt)
+    if "yes" in res.lower():
+       curr_best_employee = curr_employee
+    print(f"New best employee: {curr_best_employee.name}")
+  
+  reason = get_reason(curr_best_employee, new_project)
+  return curr_best_employee, reason
+  
+def update_projects_best_employees(new_employee, db):
+  model = GPT4QAModel()
+  resume_embedding_list = get_employee_embedding(new_employee) 
+  for project in Project.query.all():
+    project_emb = get_project_embedding(project)
+    project_emb_np = np.array(project_emb)
+    curr_similarity_metric = similarity_metric(resume_embedding_list, project_emb_np)
 
-  #project = Project.query.get(project_id)
-  for employee in Employee.query.all():
-    employee_embedding = get_employee_embedding(employee)
-    if employee_embedding is not None:
-        similarity = cos_similarity(embedding, employee_embedding)
-        if similarity > best_similarity:
-            best_similarity = similarity
-            best_employee= employee
-  return best_employee.id, best_employee.name
+    if curr_similarity_metric > 0.25:
+      curr_best_employee = Employee.query.get(project.best_employee_id)
+      curr_best_resume_text = curr_best_employee.resume_text
+      new_resume_text = new_employee.resume_text
+      prompt = f'''You are an expert hiring manager. The title of the project you are hiring for is {project.title}, and its description is {project.description}.
+      You previously made made a decision about the best employee for this project. Here is the resume of the employee that you originally thought is best suited for this role: {curr_best_resume_text}. Here is the resume of a new employee that you are considering:
+      {new_resume_text}. Do you think this new employee is better suited for this project than the employee you currently think is best? Consider the experience, merits, and skills of the two employees. Objectively make a decision on who you think will do a better job on this project. Is the new employee better than the current best employee? Output either "Yes" or "No", nothing else.'''
+      res = model.answer_question(prompt)
 
-def makeEmployeePrompt(employee):
-    temp1 = "Name: " + employee.name
-    temp2 = "\nID: " + str(employee.id)
-    temp3 = "\nUser ID: " + str(employee.user_id)
-    temp4 = "\nSummary: " + employee.summary
-    temp5= "\nHobbies: " + employee.hobbies
-    temp6 = "\nJobs: " +  employee.jobs
-    temp7 = "\nSkills: " + employee.skills
-    return temp1+temp2+temp3+temp4+temp5+temp6 +temp7
+      if "yes" in res.lower():
+        project.best_employee_id = new_employee.id
+        project.best_employee_name = new_employee.name
+        project.best_employee_reason = get_reason(new_employee, project)
+        db.session.commit()
 
-def llm_get_best_employee_id_name_for_project(new_project):
-    model = GPT4QAModel()
-    best_employee = None
-    first = True
-    reason = ""
-    for employee in Employee.query.all():
-        if first or best_employee is None: #set best employee to first one
-            best_employee = employee
-            first = False
-            best_employee_prompt = "Here is some information about the employee in this role: \n" + makeEmployeePrompt(best_employee) + "\n\n"
-            best_employee_prompt += "Why is this person suited for the role? Answer in one to two sentences."
-            reason = model.answer_question(best_employee_prompt)
-        else:
-            best_employee_prompt = "Here is some information about the best employee so far: \n" + makeEmployeePrompt(best_employee) + "\n\n"
-            curr_employee_info = makeEmployeePrompt(employee)
-            curr_employee_prompt = "Now, here is some information about the new employee we are evaluating: \n"+ curr_employee_info + "\n\n"
-            prompt = "Imagine you are a recruiter and you want to hire the best talent possible. You are looking at the best employee currently and a new employee applying for the postion. The new employee may or may not be better than the curent best employee.\n"
-            proj_prompt = "Here is some information about the project:\nProject Title: "+new_project.title + "\nProject Description: "+new_project.description + "\n\n"
-            end = "Looking at the current best employee and new employee applying, is the new employee better suited for this project compared to the current best employee? Output either \"Yes\" or \"No\". "
-
-            fullprompt = prompt + proj_prompt + best_employee_prompt + curr_employee_prompt + end
-
-            res = model.answer_question(fullprompt)
-            print(employee.name, "Is this person better?:", res)
-            if "yes" in res.lower(): #replace
-                print("inhere\n")
-                best_employee = employee
-                replace_prompt = "Now, here is information about " + employee.name + " who is a better candidate: \n" + curr_employee_info
-                replace_prompt += proj_prompt
-                replace_prompt += "\n Why is " + employee.name + " the best suited candidate to this project? Respond in one to two sentences why " + employee.name + "is the best candidate for this job."
-                reason = model.answer_question(replace_prompt)
-
-    return best_employee, reason
 
 def main():
 
