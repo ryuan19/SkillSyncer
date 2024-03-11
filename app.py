@@ -53,6 +53,22 @@ def logout():
     flash('You have been logged out.')
     return redirect(url_for('login'))
 
+# @app.route('/signup', methods=['GET', 'POST'])
+# def signup():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+#         email = request.form['email']
+
+#         hashed_password = generate_password_hash(password)  # Default hashing method
+
+#         new_user = User(username=username, password=hashed_password, email=email)
+#         db.session.add(new_user)
+#         db.session.commit()
+
+#         return redirect(url_for('dashboard'))
+#     return render_template('signup.html')
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -60,14 +76,24 @@ def signup():
         password = request.form['password']
         email = request.form['email']
 
+        user_exists = User.query.filter_by(username=username).first()
+        if user_exists:
+            flash('Username already exists. Please choose a different one.')
+            return redirect(url_for('signup'))
+
         hashed_password = generate_password_hash(password)  # Default hashing method
 
         new_user = User(username=username, password=hashed_password, email=email)
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect(url_for('login'))
+        # Log the user in by setting the session variables
+        session['username'] = username
+        flash('Account created successfully. Welcome!')
+
+        return redirect(url_for('dashboard'))
     return render_template('signup.html')
+
 
 @app.route('/show-users')
 def show_users():
