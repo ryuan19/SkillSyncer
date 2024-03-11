@@ -116,11 +116,11 @@ def summarize_resume(resume_text):
     # Change later
     prompt = '''You are a data retriever. I will give you a resume, and I want you to summarize it.
     I want you to output a python dictionary, with the keys - name, summary, skills, hobbies, jobs.
-    For name, extract the name and add it.
+    For name, extract the name and add it. Format it correctly in sentence case.
     For summary, give me a short 100 word summary of the whole resume and the person.
-    For skills, list out skills they are good at.
-    For hobbies, list of hobbies if they have, or else just write None.
-    For jobs, list of 5 job titles that you think this person may be suitable for.
+    For skills, list out skills they are good at. Format it as a string.
+    For hobbies, list of hobbies if they have, or else just write None. Format it as a string.
+    For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string.
     Here is the resume:
     '''
     print(f"Resume Text: {resume_text}")
