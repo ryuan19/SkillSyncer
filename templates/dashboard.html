@@ -75,11 +75,26 @@
                         </div>
                         
                         <div id="details{{ loop.index }}" style="display: none;">
-                            <h3>{{ employee.name }}</h3>
-                            <p>Summary: {{ employee.summary }}</p>
-                            <p>Skills: {{ employee.skills }}</p>
-                            <p>Hobbies: {{ employee.hobbies }}</p>
-                            <p>Suitable Jobs: {{ employee.jobs }}</p>
+                            <h3 style="color: #000; border-bottom: 2px solid #ddd; padding-bottom: 10px;">{{ employee.name }}</h3>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000; ">Summary</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.summary }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Skills</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.skills }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Hobbies</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.hobbies }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Suitable Jobs</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.jobs }}</p>
+                            </div>
                         </div>
                     </div>  
                     {% endfor %}
@@ -103,7 +118,7 @@
                 {% for project in projects %}
                 <div class="employee-card">  
                     <h3 style="margin: 0;font-size: 24px;">{{ project.title }}</h3>
-                    <p>Description: {{ project.description | safe }}</p>
+                    <!-- <p>Description: {{ project.description | safe }}</p> -->
                     <p>Best Employee Match: {{ project.best_employee_name | safe }}</p>
                     <!-- Trigger Button -->
                     <div style="display: flex; flex-direction: row;">
@@ -127,10 +142,30 @@
 
                     <!-- Hidden Details Container -->
                     <div id="projectDetails{{ loop.index }}" style="display: none;">
-                        <h3>{{ project.title }}</h3>
+                        <!-- <h3>{{ project.title }}</h3>
                         <p>Project description: {{ project.description }}</p>
                         <p>The best employee for this job is: {{ project.best_employee_name }}</p>
-                        <p>{{ project.best_employee_name }} is the best employee for this job because: {{ project.best_employee_reason }}</p>
+                        <p>{{ project.best_employee_name }} is the best employee for this job because: {{ project.best_employee_reason }}</p> -->
+
+
+
+                        <h3 style="color: #000; border-bottom: 2px solid #ddd; padding-bottom: 10px;">{{ project.title }}</h3>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000; ">Project Description</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.description }}</p>
+                            <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                        </div>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000;">Best Employee Match</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.best_employee_name }}</p>
+                            <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                        </div>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000;">Why we matched {{ project.best_employee_name }} here</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.best_employee_reason }}</p>
+                        </div>
+                       
+
                     </div>
                 </div>
                 {% endfor %}
