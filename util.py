@@ -120,12 +120,16 @@ def summarize_resume(resume_text):
     For summary, give me a short 100 word summary of the whole resume and the person.
     For skills, list out skills they are good at. Format it as a string.
     For hobbies, list of hobbies if they have, or else just write None. Format it as a string.
-    For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string.
+    For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string. Do not include numbers in the list, your output should be of the form: "job_one, job_two, job_three, job_four"
+    Make sure the final output is a python dictionary only, nothing else.
+    Your output should be of the form: {"name": "...", "summary": "...", "skills": "...", "hobbies": "...", "jobs": "..."}
+    Don't include ```python at the beginning of your output.
+
     Here is the resume:
     '''
     print(f"Resume Text: {resume_text}")
     prompt += resume_text
-    model = GPT4QAModel()
+    model = GPT4QAModel(model = "gpt-3.5-turbo")
     response = model.answer_question(prompt)
     print(f"response: {response}")
     response = json.loads(response)
@@ -139,9 +143,11 @@ def summarize_resume(resume_text):
 
 
 def get_reason(best_employee, project):
-  model = GPT4QAModel(model="gpt-3.5-turbo")
+  model = GPT4QAModel()
   prompt = f'''You are an expert hiring manager. The title of the project you are hiring for is {project.title}, and its description is {project.description}.
-  Here is the resume of the person you have chosen for this project: {best_employee.resume_text}. In at most 3 sentences, tell me why this person is a good fit for the role.'''
+  Here is the resume of the person you have chosen for this project: {best_employee.resume_text}. If the chosen person is a good fit, then in at most 3 sentences, tell me why this person is a good fit for the role.
+  If this person is not a good fit at all, then indicate that this person is not a great fit but was chosen since all candidates are unqualified.
+  If you decide to say this candidate is unqualified, you have to say that they were only chosen since all candidates are unqualified. Do not try to make up reasons why this person is a good fit.'''
   reason = model.answer_question(prompt)
   return reason
 
@@ -149,7 +155,7 @@ def llm_best_out_of_5(best_employees, new_project):
   model = GPT4QAModel()
   curr_best_employee = best_employees[0]
   print(f"Starting Best Employee: {curr_best_employee.name}")
-  for i in range(1, len(best_employees)):
+  for i in range(len(best_employees) - 1, 0, -1):
     curr_employee = best_employees[i]
     print(f"Considering employee: {curr_employee.name}")
     curr_best_employee_resume = curr_best_employee.resume_text
@@ -166,10 +172,16 @@ def llm_best_out_of_5(best_employees, new_project):
   reason = get_reason(curr_best_employee, new_project)
   return curr_best_employee, reason
   
-def update_projects_best_employees(new_employee, db):
+def update_projects_best_employees(new_employee, db, user):
   model = GPT4QAModel()
   resume_embedding_list = get_employee_embedding(new_employee) 
-  for project in Project.query.all():
+  for project in user.projects:
+    if not project.best_employee_id:
+        project.best_employee_id = new_employee.id
+        project.best_employee_name = new_employee.name
+        project.best_employee_reason = get_reason(new_employee, project)
+        db.session.commit()
+        return
     project_emb = get_project_embedding(project)
     project_emb_np = np.array(project_emb)
     curr_similarity_metric = similarity_metric(resume_embedding_list, project_emb_np)
