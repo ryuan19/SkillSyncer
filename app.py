@@ -53,22 +53,6 @@ def logout():
     flash('You have been logged out.')
     return redirect(url_for('login'))
 
-# @app.route('/signup', methods=['GET', 'POST'])
-# def signup():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#         email = request.form['email']
-
-#         hashed_password = generate_password_hash(password)  # Default hashing method
-
-#         new_user = User(username=username, password=hashed_password, email=email)
-#         db.session.add(new_user)
-#         db.session.commit()
-
-#         return redirect(url_for('dashboard'))
-#     return render_template('signup.html')
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
