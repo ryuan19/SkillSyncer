@@ -120,7 +120,7 @@ def summarize_resume(resume_text):
     For summary, give me a short 100 word summary of the whole resume and the person.
     For skills, list out skills they are good at. Format it as a string.
     For hobbies, list of hobbies if they have, or else just write None. Format it as a string.
-    For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string. Do not include numbers in the list, your output should be of the form: "job_one, job_two, job_three, job_four"
+    For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string. Take a holistic look at the resume and choose 5 job titles based on all the experience the person has. The first job title should be the job that you think best fits the person, and the rest of the list should be in descending order. Do not include numbers in the list, your output should be of the form: "job_one, job_two, job_three, job_four, job_five"
     Make sure the final output is a python dictionary only, nothing else.
     Your output should be of the form: {"name": "...", "summary": "...", "skills": "...", "hobbies": "...", "jobs": "..."}
     Don't include ```python at the beginning of your output.
