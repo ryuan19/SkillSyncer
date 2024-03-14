@@ -123,13 +123,11 @@ def summarize_resume(resume_text):
     For jobs, list of 5 job titles that you think this person may be suitable for. Format it as a string. Take a holistic look at the resume and choose 5 job titles based on all the experience the person has. The first job title should be the job that you think best fits the person, and the rest of the list should be in descending order. Do not include numbers in the list, your output should be of the form: "job_one, job_two, job_three, job_four, job_five"
     Make sure the final output is a python dictionary only, nothing else.
     Your output should be of the form: {"name": "...", "summary": "...", "skills": "...", "hobbies": "...", "jobs": "..."}
-    Don't include ```python at the beginning of your output.
-
     Here is the resume:
     '''
     print(f"Resume Text: {resume_text}")
     prompt += resume_text
-    model = GPT4QAModel(model = "gpt-3.5-turbo")
+    model = GPT4QAModel(model = "gpt-4")
     response = model.answer_question(prompt)
     print(f"response: {response}")
     response = json.loads(response)
