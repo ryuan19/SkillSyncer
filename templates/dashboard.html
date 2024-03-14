@@ -19,6 +19,9 @@
         function showSpinner() {
             document.getElementById('loading-spinner').style.display = 'block';
         }
+        function showSpinner2() {
+            document.getElementById('loading-spinner-2').style.display = 'block';
+        }
     </script>
 </head>
 <body>
@@ -103,12 +106,25 @@
         
             <h2>Projects</h2>
             <div class="box-add-project" style="margin-bottom: 20px;">
-                <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data" onsubmit="showSpinner2()">
                     <p style="color: #000; font-weight: 100px; margin-bottom: 10px; margin-top: 0;">Add Project Title and Description</p>
-                    <div style="display: flex; align-items: center; padding: 10px;">
+                    <div style="align-items: left; padding: 10px;">
+                        <div style="display: flex; flex-direction: row;">
                         <textarea type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px; height: 40px"></textarea>
                         <textarea name="description" placeholder="Project Description" required style="flex-grow: 1; margin-right: 10px; padding: 10px;height: 40px"></textarea>
                         <button class="button-add" type="submit">+ Add</button>
+                    </div>
+                        <div id="loading-spinner-2" style="display: none; margin: 30px 30px 30px 60px">
+                            <div class="ring" style="width: 100px; height: 100px; text-align: center;">
+                                <div class='ring1' style="border:1px solid #e91c97; border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97 "></div>
+                                <div class='ring2' style="border:1px solid #595959;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #595959"></div>
+                                <div class='ring3' style="border:1px solid #e91c97;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                                <div class='ring4' style="border:1px solid #595959;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #595959"></div>
+                                <div class='ring5' style="border:1px solid #e91c97;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                                <p style="font-size: 20px; line-height: 1.1; color:#000; margin-bottom: 5px">AI is matching employee...</p>
+                                <p style="font-size: 12px; line-height: 1.1; color:#595959; margin-bottom: 5px">This may take up to 10 sec.</p>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
