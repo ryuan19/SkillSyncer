@@ -46,3 +46,17 @@ What I aim to do for next sprint:
 3. Roy Yuan
 What I did: 
 What I aim to do for next sprint: 
+
+
+## Sprint 4
+1. Krrish Chawla
+What I did: Tested data masking and incorporated it, worked on error handling, testing different models as a final check, finalized front end, cleaned the data pipeline and implemented it in the code.
+What I aim to do for next sprint: Demo day! Aim to present it to people with good feedback.
+
+2. Arvind Saligrama
+What I did: 
+What I aim to do for next sprint: 
+
+3. Roy Yuan
+What I did: 
+What I aim to do for next sprint: 
