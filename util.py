@@ -200,6 +200,29 @@ def update_projects_best_employees(new_employee, db, user):
         db.session.commit()
 
 
+def fix_project_after_deleting_emp(project, user, db):
+    project_emb = get_project_embedding(project)
+    project_emb_np = np.array(project_emb)
+    best_employees = get_5_best_employees_for_project(project_emb_np, user)
+    
+    if len(user.employees) > 0:
+        #best_employee, reason = llm_get_best_employee_id_name_for_project(best_employees, new_project)
+        best_employee, reason = llm_best_out_of_5(best_employees, project)
+
+        new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
+        project.best_employee_id = new_best_employee_id
+        project.best_employee_name = new_best_employee_name
+        project.best_employee_reason=reason
+    
+    else:
+        project.best_employee_id = None
+        project.best_employee_name = "None Yet"
+        project.best_employee_reason= "N/A"
+
+    
+    db.session.commit()
+
+
 def main():
 
     # prompt = "Hello, world!"

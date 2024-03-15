@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from util import get_project_embedding, get_5_best_employees_for_project, update_projects_best_employees, llm_best_out_of_5, extract_text_from_pdf, allowed_file, summarize_resume, get_embedding, get_embedding_list,  get_employee_embedding, cos_similarity
+from util import get_project_embedding, get_5_best_employees_for_project, update_projects_best_employees, llm_best_out_of_5, extract_text_from_pdf, allowed_file, summarize_resume, get_embedding, get_embedding_list,  get_employee_embedding, cos_similarity, fix_project_after_deleting_emp
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import numpy as np
@@ -28,9 +28,11 @@ initialize_db()
 def index():
     return render_template('index.html')
 
+
 @app.route('/explore_form')
 def explore_form():
     return render_template('login.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -47,11 +49,13 @@ def login():
             return render_template('login.html', error="Invalid username or password")
     return render_template('login.html')
 
+
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()  # Clear the session
     flash('You have been logged out.')
     return redirect(url_for('login'))
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -84,6 +88,7 @@ def show_users():
     users = User.query.all()
     user_data = '<br>'.join([f'Username: {user.username}, Email: {user.email}' for user in users])
     return user_data
+
 
 @app.route('/dashboard', methods=["GET"])
 def dashboard():
@@ -118,8 +123,6 @@ def add_employee():
             name, summary, skills, hobbies, jobs = summarize_resume(resume_text)
             emb_list = get_embedding_list(resume_text)
             emb_list_text = json.dumps(emb_list)
-            
-
             new_employee = Employee(user_id=user.id, name=name, resume_text=resume_text, summary=summary, embedding_list = emb_list_text, skills=skills, hobbies=hobbies, jobs=jobs)
             db.session.add(new_employee)
             db.session.commit()
@@ -131,6 +134,7 @@ def add_employee():
     else:
         flash('User not logged in')
         return redirect(url_for('login'))
+
 
 @app.route('/delete_employee/<int:employee_id>', methods=['POST'])
 def delete_employee(employee_id):
@@ -147,31 +151,10 @@ def delete_employee(employee_id):
 
     projects_with_employee = Project.query.filter_by(best_employee_id=employee_id).all()
     for project in projects_with_employee:
-        fix_project_after_deleting_emp(project, user)
+        fix_project_after_deleting_emp(project, user, db)
         
     return redirect(url_for('dashboard'))
 
-def fix_project_after_deleting_emp(project, user):
-    project_emb = get_project_embedding(project)
-    project_emb_np = np.array(project_emb)
-    best_employees = get_5_best_employees_for_project(project_emb_np, user)
-    
-    if len(user.employees) > 0:
-        #best_employee, reason = llm_get_best_employee_id_name_for_project(best_employees, new_project)
-        best_employee, reason = llm_best_out_of_5(best_employees, project)
-
-        new_best_employee_id, new_best_employee_name = best_employee.id, best_employee.name
-        project.best_employee_id = new_best_employee_id
-        project.best_employee_name = new_best_employee_name
-        project.best_employee_reason=reason
-    
-    else:
-        project.best_employee_id = None
-        project.best_employee_name = "None Yet"
-        project.best_employee_reason= "N/A"
-
-    
-    db.session.commit()
 
 @app.route('/add_project', methods=['POST'])
 def add_project():
@@ -201,6 +184,7 @@ def add_project():
     else:
         flash('User not logged in')
         return redirect(url_for('login'))
+
 
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
 def delete_project(project_id):
