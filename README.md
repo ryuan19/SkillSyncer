@@ -1,4 +1,9 @@
 # SkillSyncer
+This is SkillSyncer! An AI based tool which streamlines resume matching. You can consider it your AI HR assistant, automating project matching with employees. 
+
+We have fully integrated database support, account support and multi project / employee support. Simply create an account and upload the PDF resumes of your employees, and a text description of the projects your company aims to work on. The rest will be handled by the AI!
+
+For more informmation, visit our [final presentation slides](https://docs.google.com/presentation/d/114gSoesFxxMDDUXXutnhAdf1lSK36WeHCBM_zN_RKFI/edit#slide=id.g2c299bb166e_0_0)
 
 # Get Started:
 1. ```pip install -r requirements.txt```
