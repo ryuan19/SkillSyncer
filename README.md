@@ -11,7 +11,7 @@ For more informmation, visit our [final presentation slides](https://docs.google
 3. ```python3 app.py```
 
 
-Team Member's Contributions
+# Team Member's Contributions
 ## Sprint 1
 1. Krrish Chawla
 What I did: Built Front End + Back End, OpenAI Integration, Prompting
