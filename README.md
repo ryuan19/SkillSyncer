@@ -45,8 +45,7 @@ What I did: Incorporated data masking with the app, strategized on resume chunki
 What I aim to do for next sprint: Further test data masking, work on LLM prompt optimization with DSPy to get best results, more error handling - making the app industry scalable.
 
 2. Arvind Saligrama
-What I did: 
-What I aim to do for next sprint: 
+What I did: I implemented a zero-centering algorithm for all the embeddings in the database. In my zeroCentering branch, I integrated this algorithm with the app. I also successfully got chunking to work. I wrote an algorithm that extracts each experience from a resume and embeds those experiences. What I aim to do for next sprint: Finetune our embedding model on some dataset related to resumes and projects. Use chunking and finetuned model in production. 
 
 3. Roy Yuan
 What I did: 
