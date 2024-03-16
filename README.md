@@ -59,8 +59,8 @@ What I did: Tested data masking and incorporated it, worked on error handling, t
 What I aim to do for next sprint: Demo day! Aim to present it to people with good feedback.
 
 2. Arvind Saligrama
-What I did: 
-What I aim to do for next sprint: 
+What I did: I scrapped zero-centering. I also switched from Instructor Embeddings to OpenAI's third generation embedding model. I implemented an algorithm to intelligly chunk resumes into experiences and integrated this with our app. For our emebdding filter, I implemented a novel similarity metric that only considers the top two relevant employee experiences. I rewrote our final LLM reasoning layer that decides between shortlisted candidates. We now incorporate all the text within a resume.
+What I aim to do for next sprint: Write slides for demo day and give a great pitch.
 
 3. Roy Yuan
 What I did: 
