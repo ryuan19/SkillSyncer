@@ -64,4 +64,4 @@ What I aim to do for next sprint: Write slides for demo day and give a great pit
 
 3. Roy Yuan
 What I did: Poster, slides, preparing for demo day. Helped implement final LLM reasoning layer for shortlisted list of candidates. Brainstorming for speeding up the process because my LLM calls were taking a long time, and iterating through all of them was too slow (came up with chunking). Helped with chunking while still having LLM to speed up model response time. 
-What I aim to do for next sprint: Help teammates get ready for demo day presentation because I am out of town for school athletics.
+What I aim to do for next sprint: Demo day
